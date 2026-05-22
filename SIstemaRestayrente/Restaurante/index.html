@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - The Epicurean</title>
+  <link href="css/global.css" rel="stylesheet">
+  <link href="css/login.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="login-layout">
+    <div class="login-banner">
+      <svg class="svg-icon" style="width:80px;height:80px;color:var(--gold);margin-bottom:24px;" viewBox="0 0 24 24">
+        <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"></path>
+        <line x1="6" y1="17" x2="18" y2="17"></line>
+      </svg>
+      <h1>Sistema Restaurante</h1>
+      <p>Gestão Inteligente</p>
+    </div>
+    <div class="login-form-area">
+      <div class="login-box" id="login-box">
+        <div class="login-header">
+          <h2>Bem-vindo de volta</h2>
+          <p>Insira suas credenciais para acessar o painel</p>
+        </div>
+        <div class="error-msg" id="login-erro">Usuário ou senha incorretos!</div>
+        <form id="form-login" onsubmit="realizarLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Usuário</label>
+            <input type="text" class="form-input" id="username" placeholder="admin / cozinha / garcom" required autocomplete="off">
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label">Senha</label>
+            <input type="password" class="form-input" id="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 32px; height: 48px;">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="js/banco.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

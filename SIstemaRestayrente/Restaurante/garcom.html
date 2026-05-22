@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Atendimento - The Epicurean</title>
+  <link href="css/global.css" rel="stylesheet">
+  <link href="css/garcom.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+  </div>
+
+  <div class="app">
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h2>Atendimento</h2>
+        <p>THE EPICUREAN</p>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('mesas', this, 0)">Mesas</div>
+        <div class="nav-item" onclick="showPage('pedidos', this, 1)">Meus Pedidos</div>
+        <div class="nav-item" onclick="toggleHighContrast()">Alto Contraste</div>
+      </div>
+    </nav>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-item active" onclick="showPage('mesas', null, 0)">Mesas</div>
+      <div class="bottom-nav-item" onclick="showPage('pedidos', null, 1)">Pedidos</div>
+      <div class="bottom-nav-item" onclick="toggleHighContrast()">Acessib.</div>
+      <div class="bottom-nav-item" onclick="window.location.href='index.html'" style="color: var(--red);">Sair</div>
+    </nav>
+
+    <div class="main">
+      <div id="page-mesas" class="page active">
+        <div class="topbar">
+          <div class="topbar-info">
+            <h1>Salão Principal</h1>
+            <p class="topbar-sub">Gestão de mapa</p>
+          </div>
+          <button class="btn btn-outline" onclick="addTable()">+ Add Mesa</button>
+        </div>
+        <div class="tables-grid" id="tables-grid"></div>
+      </div>
+
+      <div id="page-comanda" class="page">
+        <div class="topbar">
+          <h1 id="comanda-title">Mesa</h1>
+          <button class="btn btn-outline" onclick="showPage('mesas', null, 0)">Voltar</button>
+        </div>
+        <div class="order-panel">
+          <div class="order-menu">
+            <div class="dish-category-tabs" id="garcom-cat-tabs"></div>
+            <div class="menu-grid" id="garcom-menu-grid"></div>
+          </div>
+          <div class="order-cart">
+            <h3 id="cart-table-label">Resumo</h3>
+            <div id="cart-items-list"></div>
+            <div id="cart-empty-msg">Carrinho Vazio</div>
+            <div id="cart-totals" style="display:none;">
+              <textarea id="order-note-txt" placeholder="Observação para a cozinha..."></textarea>
+              <button class="btn btn-primary btn-block" onclick="sendToKitchen()">Enviar Pedido</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-pedidos" class="page">
+        <div class="topbar"><h1>Pedidos Ativos</h1></div>
+        <div id="garcom-orders-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-tableAction">
+    <div class="modal">
+      <h2 id="action-table-name">Mesa</h2>
+      <p id="action-table-status">Status</p>
+      <button class="btn btn-primary btn-block" onclick="openOrder()">Abrir Comanda</button>
+      <button class="btn btn-outline danger btn-block" onclick="removeTable()">Remover Mesa</button>
+      <button class="btn btn-block" onclick="closeModal('tableAction')" style="margin-top:10px">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="notif" id="notif"><span id="notif-msg"></span></div>
+
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+  <script src="js/banco.js"></script>
+  <script src="js/garcom.js"></script>
+</body>
+</html>

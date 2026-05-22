@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Atendimento - The Epicurean</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tela Garcom  -->
+  <style>
+    :root {
+      --brown: #4A1F12;
+      --brown-mid: #3A170D;
+      --brown-light: #5C2616;
+      --gold: #FF8C42;
+      --gold-light: #FFA56B;
+      --gold-pale: #FFF1E8;
+      --dark: #4A1F12;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --green: #16a34a;
+      --font-mono: 'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace;
+    }
+
+    /* FORÇA A FONTE JETBRAINS MONO EM TUDO */
+    * { font-family: var(--font-mono) !important; box-sizing: border-box; }
+
+    body { background: var(--gray-50); margin: 0; padding: 0; }
+    input, select, textarea, button { font-family: var(--font-mono) !important; }
+
+    .sidebar { background: var(--brown) !important; border-right: none !important; }
+    .sidebar-brand h2 { color: #FFFFFF !important; font-size: 20px !important; margin: 0 0 4px 0;}
+    .sidebar-brand p { color: var(--gold) !important; font-size: 13px !important; font-weight: 700; margin: 0;}
+    .nav-item { color: #FFFFFF !important; font-size: 15px !important; font-weight: 600 !important; padding: 14px 16px !important; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent;}
+    .nav-item:hover { background: rgba(255,255,255,0.05) !important; color: #FFFFFF !important; }
+    .nav-item.active { background: rgba(0,0,0,0.2) !important; color: var(--gold) !important; border-left-color: var(--gold) !important; font-weight: 700 !important; }
+    .nav-item svg { width: 22px !important; height: 22px !important; stroke-width: 2.5; }
+    .sidebar-user { border-top: 1px solid var(--brown-light) !important; padding: 16px;}
+    .user-name { color: #FFFFFF !important; font-size: 14px !important; font-weight: 700; }
+    .logout-btn { color: #ff6b6b !important; font-size: 13px !important; font-weight: 600; cursor:pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;}
+    .logout-btn:hover { color: #ff4c4c !important; }
+
+    body.high-contrast { background: #000000 !important; color: #FFFFFF !important; }
+    body.high-contrast .sidebar { background: #000000 !important; border-right: 2px solid #FFCC00 !important; }
+    body.high-contrast .bottom-nav { background: #000000 !important; border-top: 2px solid #FFCC00 !important; }
+    body.high-contrast .topbar { background: #000000 !important; border-bottom: 2px solid #FFCC00 !important; color: #FFFFFF !important; }
+    body.high-contrast .topbar h1, body.high-contrast .topbar-sub, body.high-contrast .topbar div { color: #FFFFFF !important; }
+    body.high-contrast .card, body.high-contrast .table-cell, body.high-contrast .menu-dish { background: #000000 !important; border: 2px solid #FFFFFF !important; box-shadow: none !important; color: #fff !important; }
+    body.high-contrast .table-num, body.high-contrast .table-status, body.high-contrast .menu-dish-name, body.high-contrast .menu-dish-desc { color: #FFFFFF !important; }
+    body.high-contrast .table-cell.occupied { border-color: #FFCC00 !important; }
+    body.high-contrast .btn-primary, body.high-contrast .add-btn { background: #004AAD !important; color: #FFFFFF !important; border: 2px solid #004AAD !important; }
+    body.high-contrast .btn-outline { border: 2px solid #FFCC00 !important; color: #FFCC00 !important; background: #000000 !important; }
+    body.high-contrast .btn-outline.danger { border-color: #FF0000 !important; color: #FF0000 !important; }
+    body.high-contrast .cat-tab { background: #000000 !important; border: 2px solid #FFFFFF !important; color: #FFFFFF !important; }
+    body.high-contrast .cat-tab.active { background: #FFCC00 !important; color: #000000 !important; border-color: #FFCC00 !important; }
+    body.high-contrast .modal { background: #000000 !important; border: 2px solid #FFCC00 !important; }
+    body.high-contrast .qty-control { background: #000 !important; border-color: #FFF !important; }
+    body.high-contrast .qty-btn { background: #000 !important; border: 1px solid #FFF !important; color: #FFF !important; }
+    body.high-contrast .qty-num { color: #FFF !important; }
+    body.high-contrast .item-note-input, body.high-contrast textarea { background: #000 !important; color: #FFF !important; border: 1px solid #FFF !important; }
+    body.high-contrast .cart-item-name, body.high-contrast .cart-item-price { color: #fff !important; }
+    body.high-contrast .order-card { border-color: #FFF !important; }
+    body.high-contrast .order-card-title { color: #FFF !important; }
+    body.high-contrast .order-card-time { color: #CCC !important; }
+    body.high-contrast .order-items-box { background: #111 !important; border-color: #444 !important; }
+    body.high-contrast .order-item-row { color: #FFF !important; }
+    body.high-contrast .order-item-note { color: #AAA !important; }
+    body.high-contrast .order-general-note { background: #000 !important; color: #FFCC00 !important; border-color: #FFCC00 !important; }
+    body.high-contrast .order-card-total { color: #FFCC00 !important; }
+    body.high-contrast #cart-table-label { color: #FFF !important; }
+    body.high-contrast .modal-close { background: #fff !important; color: #000 !important; }
+    body.high-contrast .sent-order-box { background: #111 !important; border-color: #444 !important; }
+    body.high-contrast .sent-order-box span { color: #fff !important; }
+
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+    .main { flex: 1; margin-left: 0; padding-bottom: 80px; }
+    .topbar { padding: 16px 24px; position: sticky; top: 0; z-index: 50; background: rgba(250, 247, 242, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .page { padding: 24px; display: none; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .sidebar { display: none; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #fff; border-top: 1px solid var(--gray-200); display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+    .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--gray-400); font-size: 11px; font-weight: 600; cursor: pointer; flex: 1; transition: 0.2s; }
+    .bottom-nav-item.active { color: var(--gold); transform: translateY(-2px); }
+    .bottom-nav-item svg { width: 24px; height: 24px; stroke-width: 2.5; }
+
+    @media (min-width: 768px) {
+      .app { flex-direction: row; }
+      .sidebar { width: 240px; min-height: 100vh; background: var(--brown); position: fixed; left: 0; top: 0; display: flex; flex-direction: column; z-index: 100; }
+      .main { margin-left: 240px; padding-bottom: 0; }
+      .bottom-nav { display: none; }
+      .page { padding: 32px 40px; }
+    }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 700; transition: .2s; justify-content: center; }
+    .btn-primary { background: var(--dark); color: #fff; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-outline { background: transparent; border: 2px solid var(--dark); color: var(--dark); text-decoration: none;}
+    .btn-outline:hover { background: var(--gray-100); }
+    .btn-ghost { background: transparent; color: var(--dark); }
+    .btn-ghost:hover { background: var(--gray-100); }
+    .btn-block { width: 100%; }
+
+    .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .table-cell { aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: 2px solid var(--gray-200); background: #fff; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
+    .table-cell::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: transparent; }
+    .table-cell.free:hover { border-color: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
+    .table-cell.occupied { border-color: var(--gold); background: var(--gold-pale); }
+    .table-cell.occupied::before { background: var(--gold); }
+    .table-num { font-size: 32px; font-weight: 800; color: var(--dark); }
+    .table-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray-400); }
+    .table-cell.occupied .table-status { color: var(--gold); }
+
+    .order-panel { display: flex; flex-direction: column; gap: 24px; }
+    .order-menu { flex: 1; }
+    .order-cart { width: 100%; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 24px; border: 1px solid var(--gray-100); }
+    @media (min-width: 1024px) {
+      .order-panel { flex-direction: row; }
+      .order-cart { width: 440px; position: sticky; top: 90px; height: fit-content; }
+    }
+
+    .menu-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 768px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+    
+    .menu-dish { display: flex; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid var(--gray-100); position: relative; transition: 0.2s; }
+    .menu-dish:hover { border-color: var(--gold-light); }
+    .menu-dish-img { width: 110px; min-height: 110px; object-fit: cover; background: var(--gray-200); }
+    .menu-dish-body { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .menu-dish-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--dark); padding-right: 44px; line-height: 1.2; }
+    .menu-dish-desc { font-size: 11px; color: var(--gray-400); line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .menu-dish-price { font-weight: 800; color: var(--gold); font-size: 15px; }
+    
+    .add-btn { position: absolute; bottom: 12px; right: 12px; width: 40px; height: 40px; border-radius: 8px; background: var(--brown); color: #fff; border: none; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .add-btn:active { transform: scale(0.9); }
+
+    .cart-item { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px dashed var(--gray-200); }
+    .cart-item-info { display: flex; flex-direction: column; min-width: 70px; flex-shrink: 0; }
+    .cart-item-name { font-weight: 800; font-size: 14px; color: var(--brown); margin-bottom: 6px; line-height: 1.2; }
+    .cart-item-price { font-weight: 800; font-size: 13px; color: var(--gold); }
+    .qty-control { display: flex; align-items: center; gap: 6px; background: #fff; border-radius: 8px; padding: 4px; border: 1px solid var(--gray-200); box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-left: auto; }
+    .qty-btn { width: 36px; height: 36px; border-radius: 6px; border: none; background: var(--gray-50); color: var(--dark); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .qty-btn:active { transform: scale(0.9); }
+    .qty-num { font-size: 15px; font-weight: 800; width: 28px; text-align: center; color: var(--dark); }
+    .item-note-input { flex: 1; min-width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--gray-200); font-size: 13px; background: var(--gray-50); outline: none; transition: 0.2s; color: var(--dark); margin-top: 8px; }
+    .item-note-input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px var(--gold-pale); }
+
+    .sent-order-box { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 16px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: scaleUp 0.2s ease; width: 90%; max-width: 340px; padding: 24px; text-align: center; }
+    @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--gray-100); color: var(--gray-600); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .modal-close:hover { background: var(--gray-200); color: var(--dark); transform: scale(1.05); }
+
+    .form-group { margin-bottom: 16px; text-align: left; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-input, .form-select { width: 100%; height: 48px; padding: 0 14px; border: 2px solid var(--gray-200); border-radius: 8px; font-size: 14px; background: var(--gray-50); transition: .2s; outline: none; color: var(--dark); }
+    .form-input:focus, .form-select:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px var(--gold-pale); }
+
+    .notif { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(100px); z-index: 1000; background: var(--dark); color: #fff; padding: 12px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; opacity: 0; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: max-content; max-width: 90%; word-break: break-word; white-space: normal; text-align: center; justify-content: center; }
+    .notif.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    .svg-icon { width: 20px; height: 20px; stroke-width: 2.5; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+    
+    .action-buttons-group { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+  </div>
+
+  <div class="app">
+    <!-- Desktop Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h2 style="font-family: var(--font-mono); font-weight: 700;">Atendimento</h2>
+        <p>GERENCIAMENTO</p>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('mesas', this, 0)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> Mesas
+        </div>
+        <div class="nav-item" onclick="showPage('pedidos', this, 1)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Meus Pedidos
+        </div>
+        
+        <div class="nav-item" style="margin-top: 10px; border-top: 1px solid var(--brown-light); padding-top: 16px;" onclick="toggleHighContrast()">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+            <path d="M12 17a5 5 0 0 0 0-10v10z" fill="currentColor"></path>
+          </svg> Alto Contraste
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-info" style="display: flex; gap:10px; align-items:center;">
+          <div style="width:36px; height:36px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold;">G</div>
+          <div class="user-name" id="sidebar-garcom-name">Garçom</div>
+        </div>
+        <div class="logout-btn" style="margin-top: 12px; display:flex; gap:8px;" onclick="fazerLogout()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sair do Sistema
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-item active" onclick="showPage('mesas', null, 0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> Mesas
+      </div>
+      <div class="bottom-nav-item" onclick="showPage('pedidos', null, 1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Pedidos
+      </div>
+      <div class="bottom-nav-item" onclick="toggleHighContrast()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+            <path d="M12 17a5 5 0 0 0 0-10v10z" fill="currentColor"></path>
+        </svg> Acessib.
+      </div>
+      <div class="bottom-nav-item" onclick="fazerLogout()" style="color: var(--red);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sair
+      </div>
+    </nav>
+
+    <!-- Área de Conteúdo -->
+    <div class="main">
+      
+      <!-- Tela Mesas -->
+      <div id="page-mesas" class="page active">
+        <div class="topbar">
+          <div>
+            <div style="font-size:24px; font-weight: 700;">Salão Principal</div>
+            <div class="topbar-sub">Gestão do mapa de mesas</div>
+          </div>
+          <button class="btn btn-outline btn-sm btn-icon" onclick="addTable()" style="border-color:var(--dark); color:var(--dark); padding: 8px 16px;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Nova Mesa
+          </button>
+        </div>
+        
+        <div class="tables-grid" id="tables-grid"></div>
+      </div>
+
+      <!-- Tela Comanda (Carrinho + Histórico) -->
+      <div id="page-comanda" class="page">
+        <div class="topbar">
+          <div>
+            <div style="font-size:24px; font-weight: 700;" id="comanda-title">Comanda</div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" style="padding: 8px 16px; background: var(--gray-100);" onclick="showPage('mesas', null, 0)">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Voltar
+          </button>
+        </div>
+        
+        <div class="order-panel">
+          <div class="order-menu">
+            <div class="dish-category-tabs" id="garcom-cat-tabs" style="overflow-x:auto; padding-bottom:12px; flex-wrap:nowrap; -webkit-overflow-scrolling: touch; display:flex; gap:10px;"></div>
+            <div class="menu-grid" id="garcom-menu-grid"></div>
+          </div>
+
+          <div class="order-cart">
+            <!-- Total da Mesa (Já Pedidos + Carrinho Novo) -->
+            <div style="font-weight:800; font-size:18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--gray-100); padding-bottom: 12px;">
+              Total da Mesa <span style="color:var(--gold);" id="grand-total-label">R$ 0,00</span>
+            </div>
+
+            <!-- Pedidos Já Enviados (Histórico da Mesa) -->
+            <div id="sent-orders-section" style="display:none; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px dashed var(--gray-200);">
+              <div style="font-size:12px; font-weight:700; color:var(--gray-400); text-transform:uppercase; margin-bottom:8px;">Já Pedido (Mesa / Cozinha)</div>
+              <div id="sent-orders-list" style="max-height: 25vh; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px;"></div>
+            </div>
+            
+            <!-- Carrinho Novo -->
+            <div id="new-order-label" style="font-size:12px; font-weight:700; color:var(--dark); text-transform:uppercase; margin-bottom:8px;">Novo Pedido</div>
+            <div id="cart-items-list" style="max-height:30vh; overflow-y:auto; margin-bottom:16px; padding-right:4px;"></div>
+            
+            <div id="cart-empty-msg" style="text-align:center; padding:20px; color:var(--gray-400); font-size:13px; border:2px dashed var(--gray-200); border-radius:12px; font-weight:600;">
+              <svg style="width:32px; height:32px; margin-bottom:8px; opacity:0.5; stroke-width: 1.5; fill: none; stroke: currentColor;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><br>
+              Nenhum item novo adicionado
+            </div>
+            
+            <div id="cart-totals" style="display:none; padding-top: 16px;">
+              <textarea id="order-note-txt" style="width:100%; padding:14px; border-radius:10px; border:1px solid var(--gray-200); font-size:13px; margin-bottom:16px; min-height: 80px; resize: none; background: var(--gray-50); box-sizing: border-box; font-family: var(--font-mono);" placeholder="Ex: Priorizar bebidas, pratos sem pimenta..."></textarea>
+              <button class="btn btn-primary btn-block btn-lg btn-icon" style="background:var(--brown); width:100%; justify-content:center; padding: 16px;" onclick="sendToKitchen()">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Enviar Pedido para Cozinha
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela Meus Pedidos -->
+      <div id="page-pedidos" class="page">
+        <div class="topbar">
+          <div style="font-size:24px; font-weight: 700; color: var(--dark);">Meus Pedidos Ativos</div>
+        </div>
+        <div id="garcom-orders-list" style="margin-top: 16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AÇÕES DA MESA -->
+  <div class="modal-overlay" id="modal-tableAction" onclick="closeModalOnOverlay(event, 'tableAction')">
+    <div class="modal" style="text-align:center;">
+      <button class="modal-close" onclick="closeModal('tableAction')">
+        <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--gold-pale); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <svg class="svg-icon" style="width:32px; height:32px; color:var(--brown);" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+      </div>
+      
+      <div id="action-table-name" style="font-weight: 800; font-size: 28px; color: var(--dark);">Mesa 01</div>
+      <div id="action-table-status" style="font-size: 13px; font-weight: 600; color: var(--gray-400); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.1em;">Mesa Livre</div>
+      
+      <!-- Mostra valor atual da mesa se ocupada -->
+      <div id="action-table-total" style="font-weight: 800; font-size: 20px; color: var(--gold); margin-bottom: 24px; display: none;">R$ 0,00</div>
+      
+      <!-- BOTÕES SE MESA LIVRE -->
+      <div id="action-buttons-free" class="action-buttons-group">
+        <button class="btn btn-primary btn-block btn-lg btn-icon" style="background:var(--gold); color:var(--dark);" onclick="openOrder()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Abrir Comanda
+        </button>
+        <button class="btn btn-outline btn-block btn-icon danger" style="border-color:var(--red); color:var(--red);" onclick="requestRemoveTable()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Excluir Mesa
+        </button>
+      </div>
+
+      <!-- BOTÕES SE MESA OCUPADA -->
+      <div id="action-buttons-occupied" class="action-buttons-group" style="display: none;">
+        <button class="btn btn-primary btn-block btn-lg btn-icon" style="background:var(--gold); color:var(--dark);" onclick="openOrder()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg> Ver / Add Pedidos
+        </button>
+        <button class="btn btn-outline btn-block btn-icon" style="border-color:var(--blue); color:var(--blue);" onclick="openSplitBill()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg> Rachar Conta
+        </button>
+        <button class="btn btn-outline btn-block btn-icon" onclick="openTransferTable()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg> Transferir Mesa
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: RACHAR CONTA -->
+  <div class="modal-overlay" id="modal-splitBill" onclick="closeModalOnOverlay(event, 'splitBill')">
+    <div class="modal" style="text-align: center;">
+      <h2 style="font-size: 20px; margin: 0 0 8px 0; color: var(--dark);">Dividir Conta</h2>
+      <p style="font-size: 14px; color: var(--gray-600); margin-bottom: 24px;">Calcule rapidamente a divisão da mesa.</p>
+      
+      <div style="font-size: 14px; color: var(--gray-600); text-transform: uppercase; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px;">Total da Mesa</div>
+      <div id="split-total" style="font-size: 32px; font-weight: 800; color: var(--dark); margin-bottom: 24px;">R$ 0,00</div>
+
+      <div class="form-group">
+        <label class="form-label" style="text-align: center;">Dividir por quantas pessoas?</label>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+          <button class="icon-btn" style="width: 48px; height: 48px; font-size: 24px;" onclick="adjustSplit(-1)">-</button>
+          <input type="number" class="form-input" id="split-people" value="1" min="1" style="width: 80px; text-align: center; font-size: 20px; font-weight: 800;" onchange="updateSplitCalc()">
+          <button class="icon-btn" style="width: 48px; height: 48px; font-size: 24px;" onclick="adjustSplit(1)">+</button>
+        </div>
+      </div>
+
+      <div style="background: var(--gold-pale); border-radius: 12px; padding: 24px; margin-top: 24px; border: 1px solid var(--gold);">
+        <div style="font-size: 13px; color: var(--brown-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Valor por Pessoa</div>
+        <div id="split-result" style="font-size: 36px; font-weight: 800; color: var(--gold);">R$ 0,00</div>
+      </div>
+
+      <button class="btn btn-ghost btn-block" style="margin-top: 16px;" onclick="closeModal('splitBill')">Fechar</button>
+    </div>
+  </div>
+
+  <!-- MODAL: TRANSFERIR MESA -->
+  <div class="modal-overlay" id="modal-transferTable" onclick="closeModalOnOverlay(event, 'transferTable')">
+    <div class="modal">
+      <h2 style="font-size: 20px; margin: 0 0 8px 0; color: var(--dark);">Transferir Mesa</h2>
+      <p style="font-size: 14px; color: var(--gray-600); margin-bottom: 24px;">Mova os pedidos para uma mesa livre.</p>
+      
+      <div class="form-group">
+        <label class="form-label">Selecione a Nova Mesa (Destino)</label>
+        <select class="form-select" id="transfer-target-select">
+          <!-- Popula via JS apenas mesas livres -->
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-ghost" style="flex: 1; background: var(--gray-100);" onclick="closeModal('transferTable')">Cancelar</button>
+        <button class="btn btn-primary" style="flex: 1; background: var(--blue);" onclick="confirmTransfer()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAÇÃO DE EXCLUSÃO DE MESA -->
+  <div class="modal-overlay" id="modal-confirmDelete" onclick="closeModalOnOverlay(event, 'confirmDelete')">
+    <div class="modal" style="text-align: center;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--red-light); color: var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <svg class="svg-icon" style="width: 32px; height: 32px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </div>
+      <h3 style="font-size: 20px; margin: 0 0 8px 0; color: var(--dark);">Excluir Mesa?</h3>
+      <p style="font-size: 14px; color: var(--gray-600); margin-bottom: 24px; line-height: 1.5;">Esta ação removerá a mesa atual e <b>renumerará</b> automaticamente todas as mesas seguintes.</p>
+      
+      <div style="display: flex; gap: 12px;">
+        <button class="btn btn-ghost" style="flex: 1; padding: 12px; background: var(--gray-100);" onclick="closeModal('confirmDelete')">Cancelar</button>
+        <button class="btn btn-primary" style="flex: 1; padding: 12px; background: var(--red); border: none;" onclick="confirmRemoveTable()">Sim, Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICAÇÃO -->
+  <div class="notif" id="notif">
+    <div id="notif-icon-container"></div>
+    <span id="notif-msg" style="margin-left: 8px;"></span>
+  </div>
+
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+  <script src="banco.js"></script>
+  <script>
+    let state = lerBanco();
+    let currentCat = 'Todas';
+    let currentOrderTotal = 0; // Usado para a calculadora de divisão
+
+    function checkHighContrast() {
+      if (localStorage.getItem('theme-hc') === 'true') {
+        document.body.classList.add('high-contrast');
+      }
+    }
+    function toggleHighContrast() {
+      const isHC = document.body.classList.toggle('high-contrast');
+      localStorage.setItem('theme-hc', isHC);
+    }
+
+    function carregarNomeUsuario() {
+      const loggedUser = JSON.parse(localStorage.getItem('logged_user'));
+      if (loggedUser && loggedUser.name) {
+        const sidebarName = document.getElementById('sidebar-garcom-name');
+        if (sidebarName) sidebarName.textContent = loggedUser.name;
+      }
+    }
+
+    function fazerLogout() {
+      localStorage.removeItem('logged_user');
+      window.location.href = 'index.html';
+    }
+
+    function atualizarTela() {
+      state = lerBanco();
+      
+      if(!state.tables || state.tables.length === 0) {
+        state.tables = Array.from({length:12},(_,i)=>({ num:i+1, status:'free', orderId:null }));
+        salvarBanco(state);
+      }
+      if(!state.categories) state.categories = ['Entradas', 'Pratos Principais', 'Sobremesas', 'Bebidas'];
+      if(!state.dishes) state.dishes = [];
+      if(!state.orders) state.orders = [];
+
+      carregarNomeUsuario();
+      renderTables();
+      renderGarcomOrders();
+    }
+
+    function showPage(pageId, navEl, navIndex) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      
+      document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+      if(navEl && navEl.classList) navEl.classList.add('active');
+      else if(navIndex !== null && document.querySelectorAll('.sidebar .nav-item')[navIndex]) document.querySelectorAll('.sidebar .nav-item')[navIndex].classList.add('active');
+
+      document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
+      if(navIndex !== null && document.querySelectorAll('.bottom-nav-item')[navIndex]) document.querySelectorAll('.bottom-nav-item')[navIndex].classList.add('active');
+    }
+
+    // =====================================
+    // MESAS E MAPA
+    // =====================================
+    function renderTables(){
+      document.getElementById('tables-grid').innerHTML = state.tables.map(t=>`
+        <div class="table-cell ${t.status==='occupied'?'occupied':'free'}" onclick="handleTableClick(${t.num}, '${t.status}')">
+          <div class="table-num">${String(t.num).padStart(2,'0')}</div>
+          <div class="table-status">${t.status==='occupied'?'Ocupada':'Livre'}</div>
+        </div>
+      `).join('');
+    }
+
+    function addTable() {
+      const proximoNum = state.tables.length > 0 ? Math.max(...state.tables.map(t=>t.num)) + 1 : 1;
+      state.tables.push({ num: proximoNum, status: 'free', orderId: null });
+      salvarBanco(state);
+      atualizarTela();
+      showNotif('success', `Mesa ${String(proximoNum).padStart(2,'0')} adicionada ao mapa.`);
+    }
+
+    function requestRemoveTable() {
+      const t = state.tables.find(x => x.num === state.selectedTable);
+      if (t.status === 'occupied') return showNotif('error', 'Ação negada: A mesa está ocupada.');
+      closeModal('tableAction');
+      document.getElementById('modal-confirmDelete').classList.add('open');
+    }
+
+    function confirmRemoveTable() {
+      state.tables = state.tables.filter(x => x.num !== state.selectedTable);
+      state.tables.sort((a, b) => a.num - b.num);
+      
+      state.tables.forEach((t, index) => {
+        let novoNumero = index + 1;
+        if (t.num !== novoNumero) {
+          if (t.status === 'occupied') {
+            const tableOrders = state.orders.filter(o => o.tableNum === t.num && o.status !== 'pago' && o.status !== 'rejeitado');
+            tableOrders.forEach(order => {
+              order.table = `Mesa ${String(novoNumero).padStart(2,'0')}`;
+              order.tableNum = novoNumero;
+            });
+          }
+          t.num = novoNumero;
+        }
+      });
+
+      salvarBanco(state);
+      closeModal('confirmDelete');
+      atualizarTela();
+      showNotif('success', 'Mesa removida e mapa reorganizado.');
+    }
+
+    function handleTableClick(num, status) {
+      state.selectedTable = num;
+      document.getElementById('action-table-name').textContent = `Mesa ${String(num).padStart(2,'0')}`;
+      
+      const statusLabel = document.getElementById('action-table-status');
+      const totalLabel = document.getElementById('action-table-total');
+      const btnFree = document.getElementById('action-buttons-free');
+      const btnOccupied = document.getElementById('action-buttons-occupied');
+
+      if (status === 'occupied') {
+        statusLabel.textContent = 'Mesa Ocupada';
+        statusLabel.style.marginBottom = '4px';
+        
+        const tableOrders = state.orders.filter(o => o.tableNum === num && o.status !== 'pago' && o.status !== 'rejeitado');
+        currentOrderTotal = tableOrders.reduce((sum, order) => sum + order.total, 0);
+        
+        totalLabel.textContent = `R$ ${currentOrderTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+        totalLabel.style.display = 'block';
+
+        btnFree.style.display = 'none';
+        btnOccupied.style.display = 'flex';
+      } else {
+        statusLabel.textContent = 'Mesa Livre';
+        statusLabel.style.marginBottom = '24px';
+        totalLabel.style.display = 'none';
+        
+        btnFree.style.display = 'flex';
+        btnOccupied.style.display = 'none';
+      }
+
+      openModal('tableAction');
+    }
+
+    // =====================================
+    // FUNCIONALIDADES EXTRAS (DIVIDIR / TRANSFERIR)
+    // =====================================
+    function openSplitBill() {
+      document.getElementById('split-total').textContent = `R$ ${currentOrderTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+      document.getElementById('split-people').value = 1;
+      updateSplitCalc();
+      closeModal('tableAction'); openModal('splitBill');
+    }
+
+    function updateSplitCalc() {
+      let people = parseInt(document.getElementById('split-people').value);
+      if(isNaN(people) || people < 1) { people = 1; document.getElementById('split-people').value = 1; }
+      const perPerson = currentOrderTotal / people;
+      document.getElementById('split-result').textContent = `R$ ${perPerson.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+    }
+
+    function adjustSplit(delta) {
+      const input = document.getElementById('split-people');
+      let val = parseInt(input.value) + delta;
+      if (val < 1) val = 1;
+      input.value = val; updateSplitCalc();
+    }
+
+    function openTransferTable() {
+      const select = document.getElementById('transfer-target-select');
+      const freeTables = state.tables.filter(t => t.status === 'free');
+      if(freeTables.length === 0) return showNotif('warning', 'Não há mesas livres para transferir.');
+
+      select.innerHTML = '<option value="">Selecione uma mesa livre...</option>' +
+        freeTables.map(t => `<option value="${t.num}">Mesa ${String(t.num).padStart(2,'0')}</option>`).join('');
+
+      closeModal('tableAction'); openModal('transferTable');
+    }
+
+    function confirmTransfer() {
+      const targetNum = parseInt(document.getElementById('transfer-target-select').value);
+      if(isNaN(targetNum)) return showNotif('warning', 'Selecione a mesa destino.');
+
+      const sourceTable = state.tables.find(t => t.num === state.selectedTable);
+      const targetTable = state.tables.find(t => t.num === targetNum);
+
+      if(!sourceTable || !targetTable) return;
+
+      const tableOrders = state.orders.filter(o => o.tableNum === sourceTable.num && o.status !== 'pago' && o.status !== 'rejeitado');
+      tableOrders.forEach(order => {
+        order.table = `Mesa ${String(targetNum).padStart(2,'0')}`;
+        order.tableNum = targetNum;
+      });
+
+      targetTable.status = 'occupied';
+      targetTable.orderId = sourceTable.orderId;
+      sourceTable.status = 'free';
+      sourceTable.orderId = null;
+
+      salvarBanco(state); closeModal('transferTable'); atualizarTela();
+      showNotif('success', `Comandas transferidas para a Mesa ${String(targetNum).padStart(2,'0')}!`);
+    }
+
+    // =====================================
+    // MODAIS E UTILITÁRIOS
+    // =====================================
+    function openModal(id) { document.getElementById('modal-'+id).classList.add('open'); }
+    function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+    function closeModalOnOverlay(event, id) {
+      if (event.target === event.currentTarget) closeModal(id);
+    }
+
+    // =====================================
+    // COMANDAS (HISTÓRICO E NOVO PEDIDO)
+    // =====================================
+    function openOrder(){
+      closeModal('tableAction');
+      state.cart = [];
+      showPage('comanda', null, null);
+      document.getElementById('comanda-title').textContent = `Mesa ${String(state.selectedTable).padStart(2,'0')}`;
+      
+      renderGarcomMenu();
+      renderCart();
+    }
+
+    function renderGarcomMenu(){
+      const abas = ['Todas', ...state.categories];
+      document.getElementById('garcom-cat-tabs').innerHTML = abas.map(c=>`
+        <div class="cat-tab ${c===currentCat?'active':''}" style="white-space:nowrap; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--gray-200); background: #fff; cursor: pointer; color: var(--gray-600); transition: 0.2s;" onclick="filterGarcomMenu('${c}')">${c}</div>
+      `).join('');
+      
+      document.querySelectorAll('.cat-tab.active').forEach(el => {
+        el.style.background = 'var(--gold)'; el.style.color = 'var(--dark)'; el.style.borderColor = 'var(--gold)';
+      });
+      
+      const filtered = currentCat==='Todas' ? state.dishes : state.dishes.filter(d=>d.category===currentCat);
+      const placeholder = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><circle cx='8.5' cy='8.5' r='1.5'></circle><polyline points='21 15 16 10 5 21'></polyline></svg>`;
+
+      document.getElementById('garcom-menu-grid').innerHTML = filtered.map(d=>`
+        <div class="menu-dish">
+          <img src="${d.img || placeholder}" class="menu-dish-img">
+          <div class="menu-dish-body">
+            <div>
+              <div class="menu-dish-name">${d.name}</div>
+              <div class="menu-dish-desc">${d.desc || ''}</div>
+            </div>
+            <div class="menu-dish-price">R$ ${d.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          </div>
+          <button class="add-btn" onclick="addToCart(${d.id})">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+      `).join('') || '<div style="grid-column:1/-1; padding:32px; text-align:center; color:var(--gray-400); border:1px dashed var(--gray-200); border-radius:12px;">Nenhum item nesta categoria.</div>';
+    }
+
+    function filterGarcomMenu(cat){ currentCat = cat; renderGarcomMenu(); }
+
+    function addToCart(dishId){
+      const d = state.dishes.find(x=>x.id===dishId); if(!d) return;
+      const existing = state.cart.find(i=>i.dishId===dishId);
+      if(existing) { existing.qty++; } else { state.cart.push({ dishId, name:d.name, price:d.price, qty:1, note: '' }); }
+      renderCart(); showNotif('success', `${d.name} adicionado!`);
+    }
+
+    function updateQty(dishId, delta){
+      const item = state.cart.find(i=>i.dishId===dishId); if(!item) return;
+      item.qty += delta;
+      if(item.qty<=0) state.cart = state.cart.filter(i=>i.dishId!==dishId);
+      renderCart();
+    }
+
+    function updateItemNote(dishId, noteVal) {
+      const item = state.cart.find(i=>i.dishId===dishId);
+      if(item) item.note = noteVal;
+    }
+
+    // RENDERIZA OS PEDIDOS JÁ ENVIADOS DA MESA
+    function renderSentOrders() {
+      const tableOrders = state.orders.filter(o => o.tableNum === state.selectedTable && o.status !== 'pago' && o.status !== 'rejeitado');
+      const section = document.getElementById('sent-orders-section');
+      const list = document.getElementById('sent-orders-list');
+      
+      if (tableOrders.length === 0) {
+        section.style.display = 'none';
+        return 0; 
+      }
+      
+      section.style.display = 'block';
+      
+      const statusUI = { 
+        'novo': { label: 'AGUARDANDO COZINHA', color: 'background:#e8f0fe; color:#1a73e8;' },
+        'preparando': { label: 'EM PREPARO', color: 'background:#fef3c7; color:#d97706;' },
+        'pronto': { label: 'PRONTO', color: 'background:#004AAD;color:#fff;' },
+        'entregue': { label: 'ENTREGUE', color: 'background:#f1f3f4; color:#5f6368;' }
+      };
+
+      let totalSent = 0;
+      
+      list.innerHTML = tableOrders.map(o => {
+        totalSent += o.total;
+        const ui = statusUI[o.status] || { label: o.status, color: 'background:#f1f3f4; color:#5f6368;' };
+        
+        const dishesHtml = o.dishes.map(d => `
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--dark);">
+            <span><b>${d.qty}x</b> ${d.name}</span>
+            <span style="color:var(--gray-600);">R$ ${(d.price * d.qty).toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+          </div>
+          ${d.note ? `<div style="font-size:11px; color:var(--red); font-style:italic; margin-left:16px; margin-bottom:4px;">↳ Obs: ${d.note}</div>` : ''}
+        `).join('');
+
+        return `
+          <div class="sent-order-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--gray-200); padding-bottom:6px;">
+              <span style="font-size:12px; font-weight:800; color:var(--dark);">Comanda #${o.id.split('-')[1] || o.id}</span>
+              <span style="font-size:10px; font-weight:800; padding:4px 6px; border-radius:4px; ${ui.color}">${ui.label}</span>
+            </div>
+            ${dishesHtml}
+          </div>
+        `;
+      }).join('');
+      
+      return totalSent;
+    }
+
+    function renderCart(){
+      const listEl = document.getElementById('cart-items-list');
+      const emptyEl = document.getElementById('cart-empty-msg');
+      const totalsEl = document.getElementById('cart-totals');
+      const grandTotalLabel = document.getElementById('grand-total-label');
+      const newOrderLabel = document.getElementById('new-order-label');
+      
+      const sentTotal = renderSentOrders();
+      const cartTotal = state.cart.reduce((a,i)=>a+i.price*i.qty,0);
+      
+      const grandTotal = cartTotal + sentTotal;
+      grandTotalLabel.textContent = `R$ ${grandTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+
+      if(!state.cart.length){ 
+        emptyEl.style.display='block'; 
+        listEl.innerHTML=''; 
+        totalsEl.style.display='none'; 
+        newOrderLabel.style.display = 'none';
+        return; 
+      }
+      
+      emptyEl.style.display='none'; 
+      totalsEl.style.display='block';
+      newOrderLabel.style.display = 'block';
+      
+      listEl.innerHTML = state.cart.map(item=>`
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <span class="cart-item-name" style="font-family: var(--font-mono); font-weight: 700; font-size: 15px;">${item.name}</span>
+            <span class="cart-item-price" style="font-size: 14px;">R$ ${(item.price*item.qty).toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+          </div>
+          
+          <div class="qty-control">
+            <button class="qty-btn" onclick="updateQty(${item.dishId},-1)"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="3" fill="none"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="updateQty(${item.dishId},1)"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="3" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+          </div>
+          
+          <input type="text" class="item-note-input" placeholder="Observações do prato (Opcional)" value="${item.note || ''}" oninput="updateItemNote(${item.dishId}, this.value)">
+        </div>
+      `).join('');
+    }
+
+    function sendToKitchen(){
+      if(!state.cart.length){ showNotif('warning','A comanda está vazia.'); return; }
+      
+      const total = state.cart.reduce((a,i)=>a+i.price*i.qty,0);
+      const time = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const orderId = 'ORD-'+String(Date.now()).slice(-4);
+      
+      const order = {
+        id: orderId,
+        table: `Mesa ${String(state.selectedTable).padStart(2,'0')}`,
+        tableNum: state.selectedTable,
+        dishes: state.cart.map(i=>({dishId:i.dishId, name:i.name, price:i.price, qty:i.qty, note:i.note})),
+        status: 'novo',
+        total, time,
+        note: document.getElementById('order-note-txt').value.trim()
+      };
+      
+      state.orders.push(order);
+      const t = state.tables.find(x=>x.num===state.selectedTable);
+      if(t){ t.status='occupied'; t.orderId=orderId; } 
+      
+      state.cart = [];
+      state.selectedTable = null;
+      document.getElementById('order-note-txt').value = '';
+      
+      salvarBanco(state);
+      showPage('mesas', null, 0);
+      atualizarTela();
+      showNotif('success','Pedido enviado para a cozinha!');
+    }
+
+    function renderGarcomOrders(){
+      const myOrders = state.orders.filter(o=>o.status!=='rejeitado').reverse();
+      
+      const statusUI = { 
+        'novo': { label: 'AGUARDANDO COZINHA', color: 'badge-blue', style: 'background:#e8f0fe; color:#1a73e8;' },
+        'preparando': { label: 'EM PREPARO', color: 'badge-orange', style: 'background:#fef3c7; color:#d97706;' },
+        'pronto': { label: 'PRONTO P/ RETIRAR', color: 'badge-green', style: 'background:#004AAD;color:#fff;' },
+        'entregue': { label: 'ENTREGUE NA MESA', color: 'badge-gray', style: 'background:#f1f3f4; color:#5f6368;' }
+      };
+      
+      document.getElementById('garcom-orders-list').innerHTML = myOrders.length ? myOrders.map(o=>{
+        const ui = statusUI[o.status] || { label: o.status, color: 'badge-gray', style: '' };
+        
+        const itemsHtml = o.dishes.map(d=>`
+          <div class="order-item-row">
+            <strong>${d.qty}x</strong> ${d.name}
+            ${d.note ? `<div class="order-item-note">↳ Obs: ${d.note}</div>` : ''}
+          </div>
+        `).join('');
+
+        return `
+        <div class="card order-card">
+          <div style="display:flex;justify-content:space-between; align-items:flex-start;">
+            <div style="flex:1; padding-right:16px;">
+              <div class="order-card-title">${o.table} — #${o.id.split('-')[1] || o.id}</div>
+              <div class="order-card-time">⌚ Enviado às ${o.time}</div>
+              <div class="order-items-box">${itemsHtml}</div>
+              ${o.note ? `<div class="order-general-note"><strong>Atenção Mesa:</strong> ${o.note}</div>` : ''}
+            </div>
+            <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end;">
+              <span class="badge ${ui.color}" style="padding: 6px 10px; border-radius: 6px; ${ui.style}">${ui.label}</span>
+              <div class="order-card-total">R$ ${o.total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+            </div>
+          </div>
+        </div>
+      `}).join('') : `
+        <div style="text-align:center; padding:80px 20px; color:var(--gray-400); border:2px dashed var(--gray-200); border-radius:16px;">
+          <svg class="svg-icon" style="width:56px;height:56px; margin-bottom:16px; opacity:0.3;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <br><strong style="color:var(--gray-600); font-size: 16px;">Nenhum pedido ativo no momento</strong><br><span style="font-size:13px;">As comandas enviadas para a cozinha aparecerão aqui.</span>
+        </div>`;
+    }
+
+    function showNotif(type, msg){
+      const el = document.getElementById('notif');
+      const container = document.getElementById('notif-icon-container');
+      
+      const icons = {
+        'success': `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+        'error': `<svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`,
+        'warning': `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
+      };
+
+      el.className = `notif ${type}`;
+      container.innerHTML = icons[type] || icons['success'];
+      document.getElementById('notif-msg').textContent = msg;
+      
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    checkHighContrast();
+    atualizarTela();
+  </script>
+</body>
+</html>

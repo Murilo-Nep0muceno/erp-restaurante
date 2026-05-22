@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cardápio Digital - Bom Prato</title>
+  <link href="css/global.css" rel="stylesheet">
+  <link href="css/cliente.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body id="app-client">
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+  </div>
+
+  <div class="client-wrapper">
+    <div class="client-header">
+      <p class="client-label">Bom Prato</p>
+      <h1>Cardápio<br>Digital</h1>
+      <div style="width:48px;height:4px;background:var(--gold);margin:20px auto 0; border-radius:2px;"></div>
+    </div>
+    <div class="client-categories" id="client-cat-filters"></div>
+    <div class="client-dishes" id="client-dishes-grid"></div>
+  </div>
+
+  <div class="fab-accessibility" onclick="toggleHighContrast()">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5"></circle>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+      <path d="M12 17a5 5 0 0 0 0-10v10z" fill="currentColor"></path>
+    </svg>
+  </div>
+
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+  <script src="js/banco.js"></script>
+  <script src="js/cliente.js"></script>
+</body>
+</html>

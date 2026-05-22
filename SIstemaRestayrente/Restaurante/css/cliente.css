@@ -1,0 +1,21 @@
+.client-wrapper { max-width: 500px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
+.client-header { background: var(--brown); padding: 56px 24px 40px; color: #fff; text-align: center; border-bottom: 4px solid var(--gold); }
+.client-header h1 { font-size: 36px; margin: 12px 0; font-weight: 800; line-height: 1.15; }
+.client-label { font-size: 15px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 8px; }
+.client-categories { display: flex; gap: 12px; padding: 20px; overflow-x: auto; background: #fff; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
+.client-categories::-webkit-scrollbar { display: none; }
+.cat-pill { padding: 10px 20px; border-radius: 24px; background: #f9f9f9; color: #555; font-size: 16px; font-weight: 700; white-space: nowrap; cursor: pointer; border: 1px solid #eee; transition: 0.2s; }
+.cat-pill.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+.client-dishes { display: flex; flex-direction: column; gap: 24px; padding: 20px; padding-bottom: 120px; }
+.client-dish { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06); border: 1px solid #eee; }
+.client-dish-img { height: 220px; width: 100%; background: #eee; display: flex; align-items: center; justify-content: center; }
+.client-dish-img img { width: 100%; height: 100%; object-fit: cover; }
+.client-dish-body { padding: 20px; }
+.client-dish-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px; }
+.client-dish-name { font-size: 22px; font-weight: 800; color: var(--dark); line-height: 1.3; }
+.client-dish-price { font-size: 22px; font-weight: 800; color: var(--gold); white-space: nowrap; }
+.client-dish-desc { font-size: 16px; color: #4A4A4A; line-height: 1.6; margin-bottom: 16px; }
+.client-dish-meta { font-size: 15px; color: #555; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.empty-state { text-align: center; padding: 60px 20px; color: #888; }
+.fab-accessibility { position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%; background: var(--dark); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; border: 2px solid var(--gold); transition: 0.3s; }
+.fab-accessibility:active { transform: scale(0.9); }

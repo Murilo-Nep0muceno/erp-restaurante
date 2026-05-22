@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cardápio - O Epicurean</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --brown: #4A1F12;
+      --brown-mid: #3A170D;
+      --brown-light: #5C2616;
+      --gold: #FF8C42;
+      --gold-light: #FFA56B;
+      --gold-pale: #FFF1E8;
+      --dark: #2D1A11;
+      --gray-50: #f9f7f4;
+      --gray-100: #f0ebe3;
+      --gray-200: #e0d8cc;
+      --gray-400: #a09080;
+      --gray-600: #6b5d52;
+      --font-mono: 'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { 
+      font-family: var(--font-mono) !important; 
+      background: var(--gray-100); 
+      margin: 0; 
+      padding: 0; 
+      -webkit-font-smoothing: antialiased;
+      color: var(--dark);
+    }
+
+    .client-wrapper {
+      max-width: 800px; /* Alargado para suportar Desktop e Tablet */
+      margin: 0 auto;
+      background: var(--gray-50);
+      min-height: 100vh;
+      box-shadow: 0 0 40px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    /* HEADER */
+    .client-header {
+      background: linear-gradient(135deg, var(--brown), var(--brown-mid));
+      padding: 64px 24px 48px;
+      color: #fff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .client-header::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 6px;
+      background: var(--gold);
+    }
+    
+    .client-label {
+      font-size: 14px; font-weight: 800; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.25em; margin-bottom: 12px;
+    }
+    
+    .client-header h1 {
+      font-size: 40px; margin: 0; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em;
+    }
+
+    /* CATEGORIAS (Ficam presas no topo ao rolar) */
+    .client-categories {
+      display: flex; gap: 12px; padding: 20px 24px;
+      overflow-x: auto;
+      background: rgba(249, 247, 244, 0.95);
+      backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 10;
+      border-bottom: 1px solid var(--gray-200);
+      -webkit-overflow-scrolling: touch;
+      transition: box-shadow 0.3s ease;
+    }
+    /* Sombra dinâmica via JS quando a tela rola */
+    .client-categories.scrolled { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .client-categories::-webkit-scrollbar { display: none; }
+    
+    .cat-pill {
+      padding: 10px 20px; border-radius: 30px; background: #fff;
+      color: var(--gray-600); font-size: 15px; font-weight: 700;
+      white-space: nowrap; cursor: pointer; border: 2px solid var(--gray-200);
+      transition: all 0.2s; user-select: none;
+    }
+    .cat-pill:hover { border-color: var(--gold-light); color: var(--brown); }
+    .cat-pill.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+
+    /* GRID DE PRATOS */
+    .client-dishes {
+      display: grid;
+      grid-template-columns: 1fr; /* Padrão Mobile: 1 coluna */
+      gap: 24px;
+      padding: 24px;
+      padding-bottom: 100px;
+    }
+    
+    /* Layout para Tablet e Desktop: 2 colunas */
+    @media (min-width: 600px) {
+      .client-dishes { grid-template-columns: 1fr 1fr; }
+    }
+
+    .client-dish {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      border: 1px solid var(--gray-200);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    .client-dish:hover {
+      transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+      border-color: var(--gold-light);
+    }
+
+    .client-dish-img {
+      height: 200px; width: 100%; background: var(--gray-100);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .client-dish-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .client-dish-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+
+    .client-dish-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 12px; gap: 16px;
+    }
+
+    .client-dish-name { font-size: 20px; font-weight: 800; color: var(--dark); line-height: 1.2; margin: 0; }
+    .client-dish-price { font-size: 20px; font-weight: 800; color: var(--gold); white-space: nowrap; margin: 0; }
+
+    .client-dish-desc { font-size: 14px; color: var(--gray-600); line-height: 1.5; margin: 0 0 20px 0; flex: 1; }
+
+    .client-dish-meta {
+      font-size: 13px; color: var(--gray-600); font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+      padding-top: 16px; border-top: 1px dashed var(--gray-200);
+    }
+    .client-dish-meta svg { width: 18px; height: 18px; stroke-width: 2.5; stroke: var(--gold); fill: none; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-400); grid-column: 1 / -1; }
+    .empty-state svg { width: 64px; height: 64px; stroke: currentColor; opacity: 0.3; margin-bottom: 16px; fill: none; stroke-width: 1.5; }
+
+    /* BOTÃO ACESSIBILIDADE */
+    .fab-accessibility {
+      position: fixed; bottom: 32px; right: 32px;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #fff; color: var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 2px solid var(--gray-200);
+      cursor: pointer; z-index: 1000; transition: 0.3s;
+    }
+    .fab-accessibility:hover { background: var(--gray-50); border-color: var(--gold); color: var(--gold); transform: scale(1.05); }
+    .fab-accessibility:active { transform: scale(0.95); }
+    .fab-accessibility svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ALTO CONTRASTE */
+    body.high-contrast { background: #000 !important; color: #FFF !important; }
+    body.high-contrast .client-wrapper { background: #000 !important; border-left: 1px solid #333; border-right: 1px solid #333;}
+    body.high-contrast .client-header { background: #000 !important; border-bottom: 4px solid #FFCC00 !important; }
+    body.high-contrast .client-header::after { display: none; }
+    body.high-contrast .client-header h1 { color: #FFF !important; }
+    body.high-contrast .client-label { color: #FFCC00 !important; }
+    body.high-contrast .client-categories { background: #000 !important; border-bottom: 1px solid #FFF !important; }
+    body.high-contrast .cat-pill { background: #000 !important; color: #FFF !important; border: 2px solid #FFF !important; }
+    body.high-contrast .cat-pill.active { background: #FFCC00 !important; color: #000 !important; border-color: #FFCC00 !important; }
+    body.high-contrast .client-dish { background: #000 !important; border: 2px solid #FFF !important; box-shadow: none !important; }
+    body.high-contrast .client-dish-name, body.high-contrast .client-dish-desc, body.high-contrast .client-dish-meta { color: #FFF !important; }
+    body.high-contrast .client-dish-price { color: #FFCC00 !important; }
+    body.high-contrast .client-dish-meta { border-top-color: #555; }
+    body.high-contrast .client-dish-meta svg { stroke: #FFCC00 !important; }
+    body.high-contrast .fab-accessibility { background: #000 !important; border-color: #FFCC00 !important; color: #FFCC00 !important; }
+  </style>
+</head>
+<body>
+
+  <!-- VLIBRAS ACESSIBILIDADE -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+  </div>
+
+  <div class="client-wrapper">
+    
+    <div class="client-header">
+      <p class="client-label" id="client-rest-name">O Epicurean</p>
+      <h1>Cardápio<br>Digital</h1>
+    </div>
+
+    <!-- Filtros de Categoria -->
+    <div class="client-categories" id="client-cat-filters"></div>
+
+    <!-- Grade de Pratos -->
+    <div class="client-dishes" id="client-dishes-grid"></div>
+
+  </div>
+
+  <div class="fab-accessibility" onclick="toggleHighContrast()">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+  <script src="banco.js"></script>
+  <script>
+    let state = lerBanco();
+    let currentCat = 'Todas';
+
+    // ==========================================
+    // ACESSIBILIDADE
+    // ==========================================
+    function checkHighContrast() {
+      if (localStorage.getItem('theme-hc') === 'true') {
+        document.body.classList.add('high-contrast');
+      }
+    }
+    
+    function toggleHighContrast() {
+      const isHC = document.body.classList.toggle('high-contrast');
+      localStorage.setItem('theme-hc', isHC);
+    }
+
+    // ==========================================
+    // COMPORTAMENTO DA BARRA DE ROLAGEM
+    // ==========================================
+    window.addEventListener('scroll', () => {
+      const catBar = document.getElementById('client-cat-filters');
+      if (window.scrollY > 200) {
+        catBar.classList.add('scrolled');
+      } else {
+        catBar.classList.remove('scrolled');
+      }
+    });
+
+    // ==========================================
+    // RENDERIZAÇÃO DE DADOS
+    // ==========================================
+    function atualizarTela() {
+      state = lerBanco();
+      
+      // Carrega o nome do restaurante definido nas configurações do Admin
+      if (state.settings && state.settings.companyName) {
+        document.getElementById('client-rest-name').textContent = state.settings.companyName;
+      }
+
+      if(!state.categories) state.categories = ['Entradas', 'Pratos Principais', 'Bebidas'];
+      if(!state.dishes) state.dishes = [];
+
+      renderCategories();
+      renderClientMenu();
+    }
+
+    function renderCategories() {
+      const container = document.getElementById('client-cat-filters');
+      
+      // Se não houver pratos cadastrados no banco, esconde os filtros
+      if(state.dishes.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      const abas = ['Todas', ...state.categories];
+      container.style.display = 'flex';
+      container.innerHTML = abas.map(cat => `
+        <div class="cat-pill ${cat === currentCat ? 'active' : ''}" onclick="filterMenu('${cat}')">
+          ${cat}
+        </div>
+      `).join('');
+    }
+
+    function filterMenu(cat) {
+      currentCat = cat;
+      renderCategories(); // Atualiza a pílula ativa
+      renderClientMenu(); // Renderiza os pratos novamente
+      
+      // Rola a tela suavemente para o início do grid de pratos
+      const offset = document.querySelector('.client-categories').offsetTop;
+      window.scrollTo({ top: offset - 10, behavior: 'smooth' });
+    }
+
+    function renderClientMenu() {
+      const grid = document.getElementById('client-dishes-grid');
+      
+      // Validação 1: Banco Vazio
+      if (state.dishes.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <h3 style="font-size: 20px; margin: 0 0 8px 0; color: var(--dark);">Cardápio em Atualização</h3>
+            <p style="font-size: 15px; margin: 0;">O chef está preparando o menu. Volte em breve!</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Aplica o filtro de categoria selecionado
+      const pratosExibidos = currentCat === 'Todas' 
+        ? state.dishes 
+        : state.dishes.filter(d => d.category === currentCat);
+
+      // Validação 2: Categoria Vazia
+      if (pratosExibidos.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <p style="font-size: 16px;">Nenhum prato disponível na categoria <b>${currentCat}</b> no momento.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Ícone padrão SVG caso o prato não tenha foto cadastrada
+      const svgPlaceholder = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><circle cx='8.5' cy='8.5' r='1.5'></circle><polyline points='21 15 16 10 5 21'></polyline></svg>`;
+
+      // Monta os HTMLs dos pratos
+      grid.innerHTML = pratosExibidos.map(d => `
+        <div class="client-dish">
+          
+          <div class="client-dish-img">
+            <img src="${d.img ? d.img : svgPlaceholder}" alt="${d.name}" style="${d.img ? '' : 'width:80px; height:80px; object-fit:contain; opacity:0.5;'}">
+          </div>
+          
+          <div class="client-dish-body">
+            <div class="client-dish-header">
+              <h3 class="client-dish-name">${d.name}</h3>
+              <h3 class="client-dish-price">R$ ${d.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</h3>
+            </div>
+            
+            ${d.desc ? `<p class="client-dish-desc">${d.desc}</p>` : '<p class="client-dish-desc"></p>'}
+            
+            <div class="client-dish-meta">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              Serve ${d.serves || 1} pessoa(s)
+            </div>
+          </div>
+
+        </div>
+      `).join('');
+    }
+
+    // INICIA A APLICAÇÃO
+    checkHighContrast();
+    atualizarTela();
+  </script>
+</body>
+</html>

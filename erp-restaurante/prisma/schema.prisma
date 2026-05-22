@@ -1,0 +1,162 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  GERENTE
+  BALCONISTA
+  GARCOM
+  COZINHA
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userName  String   @unique
+  name      String?
+  passWord  String
+  role      Role
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id_product       String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String
+  unit_measurement String
+  current_quantity Float
+  minimum_quantity Float
+  unit_price       Float?
+  selling_price    Float?
+  type             String?          @default("INGREDIENTE")
+  id_supplier      String?          @db.Uuid
+  supplier         Supplier?        @relation(fields: [id_supplier], references: [id_supplier])
+  purchase_items   Purchase_items[]
+  product_supplier Product_supplier[]
+  movement_stock   Movement_stock[]
+  dish              Dish[]
+  createdAt        DateTime         @default(now())
+}
+
+model Purchase {
+  id_purchase    String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_supplier    String           @db.Uuid
+  total_price    Float
+  date           String
+  hash        String @unique 
+  purchase_items Purchase_items[]
+  supplier            Supplier @relation(fields: [id_supplier], references: [id_supplier])
+  createdAt      DateTime         @default(now())
+}
+
+model Purchase_items {
+  id_purchase_items String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String   @default("")
+  unit_measurement  String   @default("un")
+  id_product        String?  @db.Uuid
+  id_purchase       String   @db.Uuid
+  product           Product? @relation(fields: [id_product], references: [id_product])
+  purchase          Purchase @relation(fields: [id_purchase], references: [id_purchase])
+  unit_price        Float
+  quantity          Float
+}
+
+model Supplier {
+  id_supplier String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  cnpj        String   @unique
+  phone       String?
+  email       String?
+  createdAt   DateTime @default(now())
+  purchase     Purchase[]
+  product_supplier Product_supplier[]
+  product     Product[]
+}
+
+model Product_supplier {
+  id_product_supplier String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_product          String   @db.Uuid
+  id_supplier         String   @db.Uuid
+  product             Product  @relation(fields: [id_product], references: [id_product])
+  supplier            Supplier @relation(fields: [id_supplier], references: [id_supplier])
+}
+
+model Movement_stock {
+  id_movement_stock String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_product        String   @db.Uuid
+  quantity          Float
+  type              String
+  origin            String
+  createdAt         DateTime @default(now())
+  product           Product  @relation(fields: [id_product], references: [id_product])
+}
+
+model Recipe_Dish {
+  id_recipe_dish String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name_dish	String
+  description_dish String
+  selling_price_dish Float
+  available_dish Boolean
+  image          String?
+  category       String?
+  serves         Int?
+  control_rule   String?
+  createdAt DateTime @default(now())
+  dish Dish[]
+}
+
+model Dish {
+  id_dish String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_recipe_dish String   @db.Uuid
+  id_product String   @db.Uuid
+  quantity Float
+  unit_measurement String
+  recipe_dish Recipe_Dish @relation(fields: [id_recipe_dish], references: [id_recipe_dish])
+  product Product @relation(fields: [id_product], references: [id_product])
+}
+
+model Setting {
+  id              String    @id @default("singleton")
+  restaurantName  String    @default("The Epicurean")
+  tableCount      Int       @default(12)
+  cnpj            String    @default("")
+  phone           String    @default("")
+  footerNotice    String    @default("")
+  kitchenClosed   Boolean   @default(false)
+  kitchenClosedAt DateTime?
+  updatedAt       DateTime  @updatedAt
+}
+
+model Log {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user      String
+  action    String
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id_order  String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String
+  tableNum  Int
+  status    String        @default("new") // new | cooking | ready | delivered
+  createdAt DateTime      @default(now())
+  items     Order_item[]
+}
+
+model Order_item {
+  id_order_item String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_order      String  @db.Uuid
+  order         Order   @relation(fields: [id_order], references: [id_order], onDelete: Cascade)
+  dishId        String?
+  name          String
+  price         Float
+  qty           Int
+  notes         String?
+}

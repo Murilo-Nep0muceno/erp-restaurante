@@ -1,0 +1,71 @@
+.topGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 16px;
+  align-items: start;
+}
+.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1.5px solid var(--gray-100);
+  border-radius: 12px;
+}
+.rankThumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-size: var(--fs-2xl);
+}
+.rankThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rankName {
+  font-weight: 700;
+  font-size: var(--fs-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rankQty {
+  font-size: var(--fs-sm);
+  color: var(--gray-600);
+}
+.rankBadge {
+  font-weight: 700;
+  font-size: var(--fs-md);
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.rankBadge[data-top='true'] {
+  font-size: var(--fs-2xl);
+}
+
+@media (max-width: 900px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+  }
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}

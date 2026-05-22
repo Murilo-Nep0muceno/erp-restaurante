@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Painel de Controle</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- tela Balcao -->
+  <style>
+    :root {
+      --brown: #4A1F12;
+      --brown-mid: #3A170D;
+      --brown-light: #5C2616;
+      --gold: #FF8C42;
+      --gold-light: #FFA56B;
+      --gold-pale: #FFF1E8;
+      --dark: #2A1711;
+      --font-mono: 'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace;
+    }
+
+    .pratos-alta-item { display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: var(--gray-50); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--gray-200); }
+    .pratos-alta-img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--gray-200); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--gray-400); }
+    body.high-contrast .pratos-alta-item { background: #000 !important; border-color: #FFF !important; }
+    body {
+      font-family: var(--font-mono) !important;
+      background: var(--gray-50);
+      margin: 0;
+    }
+
+    * { font-family: var(--font-mono) !important; box-sizing: border-box; }
+
+    .app { display: flex; min-height: 100vh; }
+    .main { flex: 1; margin-left: 240px; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px; background: var(--brown) !important; border-right: none !important;
+      position: fixed; left: 0; top: 0; bottom: 0; display: flex; flex-direction: column; z-index: 100;
+    }
+    .sidebar-brand { padding: 24px 20px; border-bottom: 1px solid var(--brown-light); }
+    .sidebar-brand h2 { color: #FFFFFF !important; font-size: 20px !important; margin: 0 0 6px 0; }
+    .sidebar-brand p { color: var(--gold) !important; font-size: 12px !important; font-weight: 800; margin: 0; letter-spacing: 0.1em; }
+    .sidebar-nav { flex: 1; padding: 16px 0; }
+    
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; color: #FFFFFF !important;
+      font-size: 14px !important; font-weight: 600 !important; padding: 14px 20px !important;
+      cursor: pointer; transition: all .2s; border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05) !important; color: #FFFFFF !important; }
+    .nav-item.active { background: rgba(0,0,0,0.2) !important; color: var(--gold) !important; border-left-color: var(--gold) !important; font-weight: 700 !important; }
+    .nav-item svg { width: 20px !important; height: 20px !important; stroke-width: 2.5; flex-shrink: 0; }
+    
+    .sidebar-user { padding: 16px 20px; border-top: 1px solid var(--brown-light) !important; }
+    .sidebar-user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; color: var(--dark); font-weight: 800; font-size: 16px; flex-shrink: 0; text-transform: uppercase; }
+    .user-name { color: #FFFFFF !important; font-size: 14px !important; font-weight: 700; margin-bottom: 4px; }
+    .user-role { color: var(--gold-pale) !important; font-size: 11px !important; opacity: 0.8;}
+    .logout-btn { display: flex; align-items: center; gap: 8px; color: #ff6b6b !important; font-size: 13px !important; font-weight: 600; cursor: pointer; transition: .2s; }
+    .logout-btn:hover { color: #ff4c4c !important; }
+
+    /* TOPBAR & PAGES */
+    .topbar { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--gray-200); padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+    .topbar h1 { font-size: 24px; font-weight: 800; color: var(--dark); margin: 0 0 6px 0; }
+    .topbar-sub { font-size: 14px; color: var(--gray-600); font-weight: 500; }
+    
+    .page { padding: 32px 40px; display: none; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* BOTÕES */
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 700; transition: .2s; justify-content: center; }
+    .btn-primary { background: var(--dark); color: #fff; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .btn-outline { background: transparent; border: 2px solid var(--dark); color: var(--dark); }
+    .btn-outline:hover { background: var(--gray-100); }
+    .btn-ghost { background: transparent; color: var(--dark); }
+    .btn-ghost:hover { background: var(--gray-100); }
+    .btn-sm { padding: 8px 14px; font-size: 13px; }
+
+    /* CARDS & DASHBOARD */
+    .dashboard-top-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .dash-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--gray-100); }
+    .dash-card-title { font-size: 12px; font-weight: 800; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .dash-card-value { font-size: 32px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+    
+    .dash-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; align-items: start; }
+
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--gray-100); margin-bottom: 24px; overflow-x: auto; }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 12px 12px 0 0;}
+    .card-title { font-weight: 800; font-size: 16px; color: var(--dark); margin: 0; }
+
+    /* TABELAS */
+    .table-responsive { width: 100%; overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .data-table th { font-size: 12px; font-weight: 800; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; padding: 14px 24px; text-align: left; border-bottom: 2px solid var(--gray-100); background: var(--gray-50); }
+    .data-table td { padding: 16px 24px; font-size: 14px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; color: var(--dark); font-weight: 500;}
+    .data-table tr:hover td { background: var(--gray-50); }
+
+    /* FORMULÁRIOS CORRIGIDOS */
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-label { display: block; font-size: 12px; font-weight: 800; color: var(--dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-input, .form-select, .form-textarea { 
+      width: 100%; height: 48px; padding: 0 16px; 
+      border: 2px solid var(--gray-200); border-radius: 8px; 
+      font-size: 14px; font-weight: 500; background: var(--gray-50); 
+      transition: .2s; outline: none; box-sizing: border-box; color: var(--dark);
+    }
+    .form-textarea { height: auto; min-height: 100px; padding: 16px; resize: vertical; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 4px var(--gold-pale); }
+    
+    .form-row { display: grid; gap: 16px; }
+    .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    /* MODAIS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 16px; padding: 32px; max-width: 90vw; max-height: 90vh; overflow-y: auto; overflow-x: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+    .modal-close { background: var(--gray-100); border: none; cursor: pointer; color: var(--gray-600); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: .2s; }
+    .modal-close:hover { background: var(--red-light); color: var(--red); }
+    .modal-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; }
+
+    /* ÍCONES PROFISSIONAIS */
+    .svg-icon { width: 18px; height: 18px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle; }
+    .icon-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--gray-200); cursor: pointer; display: flex; align-items: center; justify-content: center; background: #fff; transition: 0.2s; color: var(--gray-600); }
+    .icon-btn.edit-btn:hover { background: #004AAD; color: #fff; border-color: #004AAD; }
+    .icon-btn.delete-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+
+    /* BADGES PROFISSIONAIS */
+    .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;}
+    .badge-green { background: #e6f4ea; color: #1e8e3e; }
+    .badge-gray { background: #f1f3f4; color: #5f6368; }
+    .badge-gold { background: var(--gold-pale); color: var(--brown); }
+    .badge-red { background: #fee2e2; color: #dc2626; }
+    .badge-blue { background: #e8f0fe; color: #1a73e8; }
+    .status-badge { cursor: pointer; transition: 0.2s; user-select: none; }
+    .status-badge:hover { filter: brightness(0.95); transform: scale(1.05); }
+
+    /* ESTILOS CARDÁPIO E EFEITO HOVER (FICHA TÉCNICA) */
+    .dish-card-edit { position: relative; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--gray-200); display: flex; flex-direction: column; }
+    .dish-card-edit-img { height: 180px; width: 100%; object-fit: cover; background: var(--gray-100); }
+    .dish-card-edit-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .dish-actions-corner { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 20; } /* Z-index alto para clicar sempre */
+    
+    /* Overlay Escuro com a Ficha Técnica */
+    .dish-ing-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(42, 23, 17, 0.95); /* Marrom escuro quase preto */
+      color: #fff; padding: 24px;
+      opacity: 0; transform: translateY(100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column;
+      z-index: 10;
+    }
+    .dish-card-edit:hover .dish-ing-overlay { opacity: 1; transform: translateY(0); }
+    .dish-ing-overlay h4 { margin: 0 0 12px 0; font-size: 14px; font-weight: 800; letter-spacing: 0.05em; color: var(--gold); text-transform: uppercase; display: flex; align-items: center; gap: 8px;}
+    .dish-ing-overlay ul { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+    .dish-ing-overlay li { border-bottom: 1px dashed rgba(255,255,255,0.15); padding: 10px 0; display:flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500;}
+    .dish-ing-overlay li span:last-child { color: var(--gold-pale); font-weight: 700; }
+    .dish-ing-overlay::-webkit-scrollbar { width: 4px; }
+    .dish-ing-overlay::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+    .upload-area { border: 2px dashed var(--gray-300); border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.3s; background: var(--gray-50); height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 240px; }
+    .upload-area:hover { border-color: var(--gold); background: #fff; }
+    .preview-img-box { width: 100%; height: 240px; border-radius: 8px; object-fit: cover; display: none; margin-top: 10px; }
+
+    .ing-input-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; align-items: flex-end; }
+    .ing-input-grid > div:nth-child(1) { flex: 2; min-width: 200px; }
+    .ing-input-grid > div:nth-child(2) { flex: 1; min-width: 100px; }
+    .ing-input-grid > div:nth-child(3) { flex: 0; }
+
+    .ing-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #fff; border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;}
+
+    /* NOTIFICAÇÃO TOAST */
+    .notif { position: fixed; bottom: 24px; right: 24px; z-index: 1000; background: var(--dark); color: #fff; padding: 16px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 12px 32px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; transform: translateY(100px); opacity: 0; transition: .4s cubic-bezier(.4,0,.2,1); }
+    .notif.show { transform: translateY(0); opacity: 1; }
+
+    /* ========================================================
+       MEDIA QUERIES (MOBILE E TABLETS)
+       ======================================================== */
+    @media (max-width: 900px) {
+      .app { flex-direction: column; }
+      
+      .sidebar { width: 100%; position: static; min-height: auto; border-bottom: 1px solid var(--brown-light); }
+      .sidebar-brand { padding: 16px 20px; text-align: center; }
+      .sidebar-nav { display: flex; flex-direction: row; overflow-x: auto; padding: 0 10px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+      .nav-item { padding: 12px 16px !important; border-left: none !important; border-bottom: 3px solid transparent; font-size: 13px !important; flex-shrink: 0; }
+      .nav-item.active { border-bottom-color: var(--gold) !important; border-left-color: transparent !important; }
+      
+      .sidebar-user { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 20px; }
+      .sidebar-user-info { margin-bottom: 0; }
+      
+      .main { margin-left: 0; }
+      .topbar { padding: 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+      .topbar > div:last-child { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+      .topbar-sub { margin-top: 4px; }
+      .page { padding: 20px !important; }
+      
+      .dash-layout { grid-template-columns: 1fr; gap: 20px; }
+      .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; gap: 16px; }
+      
+      .modal { width: 95% !important; padding: 24px; }
+      .modal-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+      
+      .ing-input-grid { flex-direction: column; align-items: stretch; }
+      .ing-input-grid > div { width: 100%; }
+      .ing-input-grid .btn-outline { width: 100% !important; margin-top: 4px; }
+    }
+
+    /* TEMA ALTO CONTRASTE */
+    body.high-contrast { background: #000000 !important; color: #FFFFFF !important; }
+    body.high-contrast .sidebar { background: #000000 !important; border-right: 2px solid #FFCC00 !important; }
+    body.high-contrast .nav-item { color: #FFFFFF !important; }
+    body.high-contrast .sidebar-brand h2, body.high-contrast .sidebar-brand p, body.high-contrast .user-name, body.high-contrast .user-role { color: #FFFFFF !important; }
+    body.high-contrast .topbar { background: #000000 !important; border-bottom: 2px solid #FFCC00 !important; color: #FFFFFF !important; }
+    body.high-contrast .topbar h1, body.high-contrast .topbar-sub { color: #FFFFFF !important; }
+    body.high-contrast .card, body.high-contrast .dash-card, body.high-contrast .dish-card-edit { background: #000000 !important; border: 2px solid #FFFFFF !important; box-shadow: none !important; }
+    body.high-contrast .dash-card-value, body.high-contrast h3, body.high-contrast h4, body.high-contrast p, body.high-contrast div { color: #FFFFFF !important; }
+    body.high-contrast .btn-primary { background: #004AAD !important; color: #FFFFFF !important; border: 2px solid #004AAD !important; }
+    body.high-contrast .btn-outline { border: 2px solid #FFCC00 !important; color: #FFCC00 !important; background: #000000 !important; }
+    body.high-contrast .icon-btn { background: #000000 !important; border: 2px solid #FFFFFF !important; color: #FFFFFF !important; }
+    body.high-contrast .data-table th { color: #FFCC00 !important; border-bottom: 2px solid #FFFFFF !important; background: #000 !important;}
+    body.high-contrast .data-table td { color: #FFFFFF !important; border-bottom: 1px solid #555555 !important; }
+    body.high-contrast .data-table tr:hover td { background: #111111 !important; }
+    body.high-contrast .modal { background: #000000 !important; border: 2px solid #FFCC00 !important; }
+    body.high-contrast .form-input, body.high-contrast .form-select, body.high-contrast .form-textarea { background: #000000 !important; color: #FFFFFF !important; border: 2px solid #FFFFFF !important; }
+    body.high-contrast .form-label { color: #FFCC00 !important; }
+    body.high-contrast .ing-list-item { background: #000 !important; border: 1px solid #FFF !important; }
+    body.high-contrast .dish-ing-overlay { background: #000 !important; border-top: 2px solid #FFCC00 !important; }
+
+  </style>
+</head>
+<body>
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+  </div>
+
+  <div class="app">
+    <!-- MENU LATERAL -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h2>Painel de Controle</h2>
+        <p>GERENCIAMENTO</p>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('dashboard', this)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('cardapio', this)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          Cardápio (Fichas)
+        </div>
+        <div class="nav-item" onclick="showPage('estoque', this)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Estoque / Insumos
+        </div>
+        <div class="nav-item" onclick="showPage('custos', this)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Financeiro
+        </div>
+        
+        <!-- Ícone do Solzinho (Padrão) -->
+        <div class="nav-item" style="margin-top: 10px; border-top: 1px solid var(--brown-light); padding-top: 16px;" onclick="toggleHighContrast()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          Alto Contraste
+        </div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="sidebar-user-info">
+          <div class="user-avatar" id="sidebar-user-avatar">C</div>
+          <div>
+            <div class="user-name" id="sidebar-user-name">Equipe de Balcão</div>
+            <div class="user-role" id="sidebar-user-role">Conta Operacional</div>
+          </div>
+        </div>
+        <div class="logout-btn" onclick="fazerLogout()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          Sair do Sistema
+        </div>
+      </div>
+    </nav>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="main">
+      
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="topbar">
+          <div>
+            <h1>Visão Geral Executiva</h1>
+            <div class="topbar-sub">Métricas e acompanhamentos de vendas diárias</div>
+          </div>
+        </div>
+        
+        <div class="page-content">
+          <div class="dashboard-top-cards" id="dash-metrics"></div>
+
+          <!-- LAYOUT DIVIDIDO: PEDIDOS RECENTES + RANKING DE PRATOS -->
+          <div class="dash-layout">
+            
+            <div class="card" style="margin-bottom: 0;">
+              <div class="card-header"><div class="card-title">Pedidos Concluídos (Recentes)</div></div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead><tr><th>ID DO PEDIDO</th><th>MESA</th><th>PRATOS</th><th>STATUS</th><th>VALOR</th></tr></thead>
+                  <tbody id="recent-orders-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 0;">
+              <div class="card-header"><div class="card-title">Pratos Mais Vendidos</div></div>
+              <div style="padding: 20px;" id="trending-dishes">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- CARDÁPIO -->
+      <div id="page-cardapio" class="page">
+        <div class="topbar">
+          <div>
+            <h1>Montar Cardápio</h1>
+            <div class="topbar-sub">Organize suas ofertas gastronômicas e fichas técnicas</div>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button class="btn btn-outline btn-sm" onclick="openCategoryModal()">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Nova Categoria
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addDish')">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Novo Prato
+            </button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;" id="category-filters"></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;" id="balcao-dishes-grid"></div>
+        </div>
+      </div>
+
+      <!-- ESTOQUE -->
+      <div id="page-estoque" class="page">
+        <div class="topbar">
+          <div>
+            <h1>Gestão de Insumos</h1>
+            <div class="topbar-sub">Controle de Inventário, Medidas e Fornecedores</div>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button class="btn btn-outline btn-sm" onclick="openSupplierModal()">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Fornecedor
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openStockModal()">
+              <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Novo Item
+            </button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="dashboard-top-cards" id="estoque-metrics"></div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">Itens Cadastrados</div></div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr><th>INGREDIENTE / PRODUTO</th><th>FORNECEDOR</th><th>TIPO</th><th>QTD.</th><th>PREÇO UN.</th><th>TOTAL</th><th>AÇÕES</th></tr>
+                </thead>
+                <tbody id="estoque-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOS -->
+      <div id="page-custos" class="page">
+        <div class="topbar">
+          <div>
+            <h1>Relatório Financeiro</h1>
+            <div class="topbar-sub">Fluxo de Caixa e Lançamentos</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('addCost')">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Novo Lançamento
+          </button>
+        </div>
+        <div class="page-content">
+          <div class="dashboard-top-cards" id="cost-metrics"></div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Detalhamento de Gastos</div></div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead><tr><th>ITEM</th><th>TIPO</th><th>DATA / VENC.</th><th>VALOR (R$)</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
+                <tbody id="costs-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: NOVA CATEGORIA -->
+  <div class="modal-overlay" id="modal-addCategory">
+    <div class="modal" style="width: 400px; max-width: 90%;">
+      <div class="modal-header">
+        <h2 style="margin:0; font-size:20px;">Nova Categoria</h2>
+        <button class="modal-close" onclick="closeModal('addCategory')">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome da Categoria</label>
+        <input class="form-input" id="new-category-name" placeholder="Ex: Bebidas Quentes">
+      </div>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" onclick="saveCategory()">Salvar Categoria</button>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVO PRATO COM FICHA TÉCNICA -->
+  <div class="modal-overlay" id="modal-addDish">
+    <div class="modal" style="width: 960px; max-width: 95vw;">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-dish-title" style="margin:0; font-size:22px; font-weight:800;">Adicionar Prato</h2>
+          <p style="font-size: 13px; color: var(--gray-600); font-weight: 500; margin-top: 6px;">Informações para o cardápio e Ficha Técnica.</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('addDish')">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <input type="hidden" id="edit-dish-id">
+      
+      <div class="modal-grid">
+        
+        <!-- Lado Esquerdo: Informações e Ingredientes -->
+        <div>
+          <div class="form-group">
+            <label class="form-label">Nome do Prato / Produto</label>
+            <input class="form-input" id="dish-name" placeholder="Ex: Pizza Margherita">
+          </div>
+          
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label class="form-label">Valor Venda (R$)</label>
+              <input class="form-input" id="dish-price" type="number" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rendimento (Pessoas)</label>
+              <input class="form-input" id="dish-serves" type="number" value="1" min="1">
+            </div>
+          </div>
+          
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label class="form-label">Categoria</label>
+              <select class="form-select" id="dish-category"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Regra de Controle (Estoque)</label>
+              <select class="form-select" id="dish-inventory-rule" onchange="toggleFichaTecnicaView()">
+                <option value="ficha">Ficha Técnica (Usa ingredientes)</option>
+                <option value="direto">Produto Final (Venda direta 1x1)</option>
+                <option value="infinito">Sem Controle de Estoque (Livre)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descrição para o Cardápio</label>
+            <textarea class="form-textarea" id="dish-desc" placeholder="Ingredientes e detalhes que o cliente verá..."></textarea>
+          </div>
+          
+          <!-- SEÇÃO FICHA TÉCNICA (Oculta se não for Ficha) -->
+          <div id="section-ficha-tecnica">
+            <hr style="border: 0; border-top: 1px solid var(--gray-200); margin: 24px 0;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <svg class="svg-icon" style="color:var(--gold);" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <h4 style="margin:0; font-size:16px; color: var(--dark); font-weight: 800;">Construir Ficha Técnica</h4>
+            </div>
+            
+            <div class="ing-input-grid">
+              <div>
+                <label class="form-label" style="font-size: 11px;">1. Selecione o Ingrediente</label>
+                <select class="form-select" id="dish-ingredient-select"></select>
+              </div>
+              <div>
+                <label class="form-label" style="font-size: 11px;">2. Qtd Gasta</label>
+                <input type="number" class="form-input" id="dish-ingredient-qty" placeholder="Ex: 150">
+              </div>
+              <div>
+                <button class="btn btn-outline" style="height: 48px; width: 48px; padding: 0;" onclick="addDishIngredient()" title="Adicionar Ingrediente">
+                  <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+              </div>
+            </div>
+            
+            <div id="dish-ingredients-list" style="background: var(--gray-50); padding: 16px; border-radius: 8px; border: 1px solid var(--gray-200); min-height: 100px;">
+              <!-- Ingredientes serão listados aqui -->
+            </div>
+          </div>
+
+          <!-- SEÇÃO PRODUTO DIRETO -->
+          <div id="section-produto-direto" style="display: none;">
+            <hr style="border: 0; border-top: 1px solid var(--gray-200); margin: 24px 0;">
+            <div class="form-group">
+              <label class="form-label">Vincular a Produto do Estoque (Desconta 1 UN por venda)</label>
+              <select class="form-select" id="dish-direct-product"></select>
+            </div>
+          </div>
+
+        </div>
+        
+        <!-- Lado Direito: Imagem e Botões -->
+        <div style="display: flex; flex-direction: column;">
+          <label class="form-label">Fotografia Principal</label>
+          <div class="upload-area" onclick="document.getElementById('dish-img-upload').click()" style="flex: 1;">
+            <div id="upload-placeholder">
+              <svg style="width: 48px; height: 48px; color: var(--gold); margin-bottom: 12px; stroke-width: 1.5; fill: none; stroke: currentColor;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              <h4 style="margin: 0; font-size: 15px; font-weight:800; color: var(--dark);">Carregar Imagem</h4>
+              <p style="font-size: 12px; color: var(--gray-600); margin-top: 6px;">Clique para selecionar do computador</p>
+            </div>
+            <img id="dish-img-preview" class="preview-img-box">
+            <input type="file" id="dish-img-upload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+          </div>
+
+          <div style="display:flex; gap:16px; margin-top: 32px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="closeModal('addDish')">Cancelar</button>
+            <button class="btn btn-primary" style="flex:2;" onclick="saveDish()">Salvar no Cardápio</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CADASTRAR FORNECEDOR -->
+  <div class="modal-overlay" id="modal-addSupplier">
+    <div class="modal" style="width: 400px; max-width: 90%;">
+      <div class="modal-header">
+        <h2 style="margin:0; font-size:20px;">Novo Fornecedor</h2>
+        <button class="modal-close" onclick="closeModal('addSupplier')">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome da Empresa / Marca</label>
+        <input class="form-input" id="supplier-name" placeholder="Ex: Moinho Central">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contato / CNPJ (Opcional)</label>
+        <input class="form-input" id="supplier-contact" placeholder="Telefone ou CNPJ">
+      </div>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" onclick="saveSupplier()">Salvar Fornecedor</button>
+    </div>
+  </div>
+
+  <!-- MODAL: ADICIONAR ESTOQUE (LAYOUT CORRIGIDO) -->
+  <div class="modal-overlay" id="modal-stock">
+    <div class="modal" style="width:600px; max-width: 95%;">
+      <div class="modal-header">
+        <h2 id="modal-stock-title" style="margin:0; font-size:20px; font-weight:800;">Novo Item de Estoque</h2>
+        <button class="modal-close" onclick="closeModal('stock')">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <input type="hidden" id="stock-id">
+      
+      <div class="form-group">
+        <label class="form-label">Nome do Item / Produto</label>
+        <input class="form-input" id="stock-name" placeholder="Ex: Arroz Branco tipo 1">
+      </div>
+
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label class="form-label">Tipo no Sistema</label>
+          <select class="form-select" id="stock-item-type">
+            <option value="ingrediente">Ingrediente Base (Usado na Cozinha)</option>
+            <option value="produto_final">Produto Final (Venda Direta)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fornecedor Vinculado</label>
+          <select class="form-select" id="stock-supplier"></select>
+        </div>
+      </div>
+      
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label class="form-label">Qtd. da Compra</label>
+          <input class="form-input" id="stock-qty" type="number" step="0.01" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Medida (Unidade)</label>
+          <select class="form-select" id="stock-unit">
+            <option value="UN">Unidades (UN)</option>
+            <option value="KG">Quilos (KG)</option>
+            <option value="G">Gramas (G)</option>
+            <option value="L">Litros (L)</option>
+            <option value="ML">Mililitro (ML)</option>
+            <option value="CX">Caixas (CX)</option>
+            <option value="PCT">Pacotes (PCT)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preço Unitário (R$)</label>
+          <input class="form-input" id="stock-price" type="number" step="0.01" placeholder="0.00">
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" style="width: 100%; margin-top: 24px;" onclick="saveStock()">Salvar no Estoque</button>
+    </div>
+  </div>
+
+  <!-- MODAL: CUSTOS FINANCEIROS -->
+  <div class="modal-overlay" id="modal-addCost">
+    <div class="modal" style="width:500px; max-width: 95%;">
+      <div class="modal-header">
+        <h2 style="margin:0; font-size:20px;">Novo Lançamento Financeiro</h2>
+        <button class="modal-close" onclick="closeModal('addCost')">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Descrição do Item</label>
+        <input class="form-input" id="cost-item" placeholder="Ex: Conta de Luz, Material Limpeza...">
+      </div>
+      
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label class="form-label">Tipo de Custo</label>
+          <select class="form-select" id="cost-type">
+            <option value="Fixo">Fixo</option>
+            <option value="Variável">Variável</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor (R$)</label>
+          <input class="form-input" id="cost-value" type="number" step="0.01" placeholder="0.00">
+        </div>
+      </div>
+      
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label class="form-label">Data de Venc. / Pagamento</label>
+          <input type="date" class="form-input" id="cost-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status Atual</label>
+          <select class="form-select" id="cost-status">
+            <option value="Pendente">Pendente</option>
+            <option value="Pago">Pago</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 16px; background: var(--gray-50); border-radius: 8px; border: 1px solid var(--gray-200);">
+        <input type="checkbox" id="cost-recurring" style="width: 20px; height: 20px; accent-color: var(--dark); cursor: pointer; flex-shrink: 0;">
+        <label for="cost-recurring" class="form-label" style="margin: 0; cursor: pointer; text-transform: none; letter-spacing: normal; font-size: 13px;">Este é um custo recorrente mensal (ex: Aluguel)</label>
+      </div>
+      
+      <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" onclick="saveCost()">Salvar Lançamento</button>
+    </div>
+  </div>
+
+  <div class="notif" id="notif">
+    <div id="notif-icon-container"></div>
+    <span id="notif-msg"></span>
+  </div>
+
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+  <script src="banco.js"></script>
+  <script>
+    let state = lerBanco();
+    let currentCatFilter = 'Todas';
+    let base64ImageTemp = null;
+    let tempDishIngredients = [];
+
+    // ÍCONES SVG PARA NOTIFICAÇÕES (Substituindo Emojis)
+    const iconsSVG = {
+      success: `<svg class="svg-icon" viewBox="0 0 24 24" style="color: #1e8e3e;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+      error: `<svg class="svg-icon" viewBox="0 0 24 24" style="color: #dc2626;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`,
+      warning: `<svg class="svg-icon" viewBox="0 0 24 24" style="color: #FF8C42;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
+    };
+
+    function showNotif(type, msg) {
+      const el = document.getElementById('notif');
+      if(!el) return;
+      document.getElementById('notif-icon-container').innerHTML = iconsSVG[type] || iconsSVG.success;
+      document.getElementById('notif-msg').textContent = msg;
+      el.classList.add('show');
+      setTimeout(()=> el.classList.remove('show'), 3500);
+    }
+
+    function checkHighContrast() {
+      if (localStorage.getItem('theme-hc') === 'true') {
+        document.body.classList.add('high-contrast');
+      }
+    }
+    
+    function toggleHighContrast() {
+      const isHC = document.body.classList.toggle('high-contrast');
+      localStorage.setItem('theme-hc', isHC);
+    }
+
+    function carregarNomeUsuario() {
+      const loggedUserStr = localStorage.getItem('logged_user');
+      if (loggedUserStr) {
+        const loggedUser = JSON.parse(loggedUserStr);
+        if (loggedUser && loggedUser.name) {
+          document.getElementById('sidebar-user-name').textContent = loggedUser.name;
+          document.getElementById('sidebar-user-role').textContent = loggedUser.role || 'Conta Operacional';
+          document.getElementById('sidebar-user-avatar').textContent = loggedUser.name.charAt(0).toUpperCase();
+        }
+      }
+    }
+
+    function fazerLogout() {
+      localStorage.removeItem('logged_user');
+      window.location.href = 'index.html';
+    }
+
+    function atualizarTela() {
+      state = lerBanco();
+      
+      if (!state.categories || state.categories.length === 0) { state.categories = ['Entradas', 'Pratos Principais', 'Bebidas']; }
+      if (!state.costs) state.costs = [];
+      if (!state.dishes) state.dishes = [];
+      if (!state.orders) state.orders = [];
+      if (!state.estoque) state.estoque = [];
+      if (!state.suppliers) state.suppliers = ['Fornecedor Geral', 'Mercado Local'];
+
+      salvarBanco(state);
+
+      carregarNomeUsuario();
+      renderDashboard();
+      renderCardapio();
+      renderEstoque();
+      renderCustos();
+    }
+
+    function showPage(page, el) {
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.getElementById('page-'+page).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+      if(el) el.classList.add('active');
+    }
+
+    // =====================================
+    // DASHBOARD
+    // =====================================
+    function renderDashboard() {
+      const pedidosFinalizados = state.orders.filter(o => o.status === 'entregue');
+      const totalVendas = pedidosFinalizados.reduce((acc, o) => acc + o.total, 0);
+      const qtdPedidos = pedidosFinalizados.length;
+
+      document.getElementById('dash-metrics').innerHTML = `
+        <div class="dash-card">
+          <div class="dash-card-title">TOTAL DE VENDAS</div>
+          <div class="dash-card-value">R$ ${totalVendas.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+        <div class="dash-card" style="border-bottom: 4px solid #004AAD;">
+          <div class="dash-card-title">PEDIDOS CONCLUÍDOS</div>
+          <div class="dash-card-value">${qtdPedidos}</div>
+        </div>
+      `;
+
+      document.getElementById('recent-orders-body').innerHTML = pedidosFinalizados.slice(-6).reverse().map(o => `
+        <tr>
+          <td style="font-weight:700;">#${o.id.split('-')[1] || o.id}</td>
+          <td>${o.table}</td>
+          <td>${o.dishes.map(d=>d.name).join(', ')}</td>
+          <td><span class="badge badge-green">CONCLUÍDO</span></td>
+          <td style="font-weight:700;">R$ ${o.total.toFixed(2)}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" style="text-align:center;">Sem pedidos finalizados</td></tr>';
+
+      // 3. Lógica do Ranking dos Pratos Mais Vendidos
+      const ranking = {};
+      pedidosFinalizados.forEach(pedido => {
+        pedido.dishes.forEach(prato => { 
+          ranking[prato.name] = (ranking[prato.name] || 0) + prato.qty; 
+        });
+      });
+      
+      const topPratos = Object.entries(ranking)
+        .map(([name, qty]) => ({ name, qty }))
+        .sort((a, b) => b.qty - a.qty).slice(0, 5);
+
+      const trendingContainer = document.getElementById('trending-dishes');
+      if (trendingContainer) {
+        if (topPratos.length > 0) {
+          trendingContainer.innerHTML = topPratos.map((p, i) => {
+            // Busca a imagem do prato baseado no nome exato
+            const infoPrato = state.dishes.find(d => d.name === p.name);
+            const imgSrc = (infoPrato && infoPrato.img) ? infoPrato.img : '';
+            
+            // Se tiver imagem, mostra. Se não, mostra o Ícone padrão do cardápio.
+            const imgHtml = imgSrc 
+              ? `<img src="${imgSrc}" class="pratos-alta-img">` 
+              : `<div class="pratos-alta-img"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>`;
+            
+            // O ícone muda dependendo se é o 1º lugar (Troféu) ou os demais lugares (#2, #3...)
+            const positionIcon = i === 0 
+              ? `<svg class="svg-icon" style="color:var(--gold); width:24px; height:24px;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>` 
+              : `<span style="font-size: 16px; font-weight: 800; color: var(--gold);">#${i+1}</span>`;
+
+            return `
+              <div class="pratos-alta-item">
+                ${imgHtml}
+                <div style="flex:1;">
+                  <div style="font-weight: 700; font-size: 14px; color: var(--dark); margin-bottom: 4px;">${p.name}</div>
+                  <div style="font-size: 12px; font-weight: 500; color: var(--gray-600);">${p.qty} unidades vendidas</div>
+                </div>
+                <div>${positionIcon}</div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          trendingContainer.innerHTML = '<p style="color:#555; font-size:14px; font-weight: 500; text-align: center; padding: 20px 0;">Nenhum dado de vendas registrado ainda.</p>';
+        }
+      }
+    }
+    // =====================================
+    // CARDÁPIO E FICHA TÉCNICA
+    // =====================================
+    function renderCardapio() {
+      const abas = ['Todas', ...state.categories];
+      document.getElementById('category-filters').innerHTML = abas.map(cat => `
+        <button class="btn ${currentCatFilter === cat ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="filterCat('${cat}')">${cat}</button>
+      `).join('');
+      document.getElementById('dish-category').innerHTML = state.categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+      const pratosExibidos = currentCatFilter === 'Todas' ? state.dishes : state.dishes.filter(d => d.category === currentCatFilter);
+      
+      document.getElementById('balcao-dishes-grid').innerHTML = pratosExibidos.map(d => {
+        let regraBadge = '';
+        if (d.inventoryRule === 'ficha') {
+          regraBadge = `<span class="badge badge-gold" title="Ficha Técnica Cadastrada"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Cozinha (${d.ingredients ? d.ingredients.length : 0} ING.)</span>`;
+        } else if (d.inventoryRule === 'direto') {
+          regraBadge = `<span class="badge badge-blue" title="Abate direto do estoque 1x1"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> Estoque Direto</span>`;
+        } else {
+          regraBadge = `<span class="badge badge-gray" title="Não controla estoque"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg> Livre (Sem Baixa)</span>`;
+        }
+
+        // MONTA OS INGREDIENTES PARA O EFEITO HOVER
+        let hoverContent = '';
+        if (d.inventoryRule === 'ficha' && d.ingredients && d.ingredients.length > 0) {
+          hoverContent = d.ingredients.map(ing => `<li><span>${ing.name}</span><span>${ing.qty} ${ing.unit}</span></li>`).join('');
+        } else if (d.inventoryRule === 'direto') {
+          const directProd = state.estoque.find(i => i.id === d.directProductId);
+          const pName = directProd ? directProd.name : 'Produto não encontrado';
+          hoverContent = `<li><span>Item Faturado (Estoque):</span><span>${pName}</span></li>`;
+        } else {
+          hoverContent = `<li><span style="color:var(--gray-400);">Este prato não deduz itens do estoque.</span></li>`;
+        }
+
+        return `
+        <div class="dish-card-edit group">
+          <div class="dish-actions-corner">
+            <button class="icon-btn edit-btn" onclick="editDish(${d.id})"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+            <button class="icon-btn delete-btn" onclick="deleteDish(${d.id})"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+          
+          <img src="${d.img ? d.img : 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23eee%22/></svg>'}" class="dish-card-edit-img">
+          
+          <div class="dish-card-edit-body">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start; gap:8px;">
+              <h4 style="margin:0; font-size:16px; font-weight:800; color:var(--dark); line-height: 1.2; word-break: break-word;">${d.name}</h4>
+              <span style="font-weight:800; color:var(--gold); font-size:15px; white-space:nowrap;">R$ ${d.price.toFixed(2)}</span>
+            </div>
+            <p style="font-size:12px; color:var(--gray-600); margin:8px 0; height:36px; overflow:hidden;">${d.desc || 'Sem descrição'}</p>
+            <div style="font-size:11px; font-weight: 600; color:var(--gray-600); display:flex; flex-wrap: wrap; gap:8px;">
+              <span class="badge badge-gray" style="background:var(--gray-100); text-transform:uppercase;">${d.category}</span>
+              ${regraBadge}
+            </div>
+          </div>
+
+          <!-- CAMADA ESCURA DO HOVER (FICHA TÉCNICA) -->
+          <div class="dish-ing-overlay">
+            <h4><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Informações do Prato</h4>
+            <ul>${hoverContent}</ul>
+          </div>
+
+        </div>
+      `}).join('') || '<p style="grid-column:1/-1; text-align:center; color:#555;">Nenhum prato encontrado.</p>';
+    }
+
+    function filterCat(cat) { currentCatFilter = cat; renderCardapio(); }
+    
+    function openCategoryModal() { document.getElementById('new-category-name').value = ''; openModal('addCategory'); }
+    function saveCategory() {
+      const nome = document.getElementById('new-category-name').value.trim();
+      if (!nome) return showNotif('warning', 'Digite um nome válido.');
+      state.categories.push(nome); salvarBanco(state); closeModal('addCategory'); atualizarTela(); showNotif('success', 'Categoria salva!');
+    }
+
+    function populateDishIngredientsDropdown() {
+      const selectIng = document.getElementById('dish-ingredient-select');
+      const selectDirect = document.getElementById('dish-direct-product');
+      
+      const ingOptions = state.estoque.map(i => `<option value="${i.id}" data-name="${i.name}" data-unit="${i.unit}">${i.name} (${i.unit})</option>`).join('');
+      selectIng.innerHTML = `<option value="">Escolha do Estoque...</option>` + ingOptions;
+
+      const directOptions = state.estoque.filter(i => i.itemType === 'produto_final').map(i => `<option value="${i.id}">${i.name} (${i.unit})</option>`).join('');
+      selectDirect.innerHTML = `<option value="">Selecione o Produto para abater 1 UN...</option>` + directOptions;
+    }
+
+    function toggleFichaTecnicaView() {
+      const rule = document.getElementById('dish-inventory-rule').value;
+      document.getElementById('section-ficha-tecnica').style.display = rule === 'ficha' ? 'block' : 'none';
+      document.getElementById('section-produto-direto').style.display = rule === 'direto' ? 'block' : 'none';
+    }
+
+    function addDishIngredient() {
+      const select = document.getElementById('dish-ingredient-select');
+      const qtyInput = document.getElementById('dish-ingredient-qty');
+      const id = select.value;
+      const qty = parseFloat(qtyInput.value);
+
+      if (!id || isNaN(qty) || qty <= 0) return showNotif('warning', 'Selecione ingrediente e insira quantidade.');
+      const option = select.options[select.selectedIndex];
+      
+      // Flexibilidade (Ex: 100 G Arroz, 150 G Frango) permitida perfeitamente
+      tempDishIngredients.push({ stockId: parseInt(id), name: option.getAttribute('data-name'), qty, unit: option.getAttribute('data-unit') });
+      renderDishIngredients(); select.value = ''; qtyInput.value = '';
+    }
+
+    function removeDishIngredient(index) { tempDishIngredients.splice(index, 1); renderDishIngredients(); }
+
+    function renderDishIngredients() {
+      const list = document.getElementById('dish-ingredients-list');
+      if (tempDishIngredients.length === 0) {
+        list.innerHTML = '<span style="font-size:13px; color:var(--gray-400);">Nenhum ingrediente adicionado à receita.</span>'; return;
+      }
+      list.innerHTML = tempDishIngredients.map((ing, index) => `
+        <div class="ing-list-item">
+          <span style="font-size:13px; font-weight:600; color:var(--dark); flex:1; padding-right:12px; word-break:break-word;">${ing.name}</span>
+          <div style="display:flex; align-items:center; gap:16px;">
+            <span style="font-size:13px; color:var(--gray-600); font-weight:700;">${ing.qty} ${ing.unit}</span>
+            <button class="icon-btn delete-btn" style="width:28px; height:28px; border:none; flex-shrink:0;" onclick="removeDishIngredient(${index})"><svg class="svg-icon" style="width:16px; height:16px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX = 600; let w = img.width, h = img.height;
+          if(w>h) { if(w>MAX) { h*=MAX/w; w=MAX; } } else { if(h>MAX) { w*=MAX/h; h=MAX; } }
+          canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          base64ImageTemp = canvas.toDataURL('image/jpeg', 0.6);
+          document.getElementById('upload-placeholder').style.display = 'none';
+          document.getElementById('dish-img-preview').src = base64ImageTemp;
+          document.getElementById('dish-img-preview').style.display = 'block';
+        }; img.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function openModal(id) {
+      document.getElementById('modal-'+id).classList.add('open');
+      if (id === 'addDish') {
+        document.getElementById('edit-dish-id').value = ''; 
+        document.getElementById('dish-name').value = '';
+        document.getElementById('dish-price').value = ''; 
+        document.getElementById('dish-desc').value = '';
+        document.getElementById('dish-inventory-rule').value = 'ficha';
+        document.getElementById('dish-direct-product').value = '';
+        
+        toggleFichaTecnicaView();
+
+        base64ImageTemp = null; document.getElementById('upload-placeholder').style.display = 'block';
+        document.getElementById('dish-img-preview').style.display = 'none'; document.getElementById('modal-dish-title').textContent = 'Adicionar Prato';
+        tempDishIngredients = []; populateDishIngredientsDropdown(); renderDishIngredients();
+      }
+      if (id === 'addCost') {
+        document.getElementById('cost-status').value = 'Pendente';
+        const cb = document.getElementById('cost-recurring');
+        if(cb) cb.checked = false;
+      }
+    }
+    
+    function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+
+    function saveDish() {
+      const id = document.getElementById('edit-dish-id').value;
+      const name = document.getElementById('dish-name').value.trim();
+      const price = parseFloat(document.getElementById('dish-price').value);
+      const category = document.getElementById('dish-category').value;
+      const desc = document.getElementById('dish-desc').value.trim();
+      const serves = parseInt(document.getElementById('dish-serves').value) || 1;
+      const inventoryRule = document.getElementById('dish-inventory-rule').value;
+      const directProductId = document.getElementById('dish-direct-product').value;
+
+      if (!name || isNaN(price)) return showNotif('warning', 'Preencha Nome e Valor.');
+      
+      const newDishData = { 
+        name, price, category, desc, serves, inventoryRule,
+        ingredients: inventoryRule === 'ficha' ? [...tempDishIngredients] : [],
+        directProductId: inventoryRule === 'direto' ? parseInt(directProductId) : null
+      };
+
+      if (id) {
+        const i = state.dishes.findIndex(x => x.id == id);
+        if (i > -1) { state.dishes[i] = { ...state.dishes[i], ...newDishData }; if (base64ImageTemp) state.dishes[i].img = base64ImageTemp; }
+      } else {
+        newDishData.id = Date.now(); newDishData.img = base64ImageTemp; state.dishes.push(newDishData);
+      }
+      
+      salvarBanco(state); closeModal('addDish'); atualizarTela(); showNotif('success', 'Prato salvo!');
+    }
+
+    function editDish(id) {
+      const d = state.dishes.find(x => x.id == id); if(!d) return;
+      populateDishIngredientsDropdown();
+
+      document.getElementById('modal-dish-title').textContent = 'Editar Prato';
+      document.getElementById('edit-dish-id').value = d.id; 
+      document.getElementById('dish-name').value = d.name;
+      document.getElementById('dish-price').value = d.price; 
+      document.getElementById('dish-category').value = d.category;
+      document.getElementById('dish-desc').value = d.desc; 
+      document.getElementById('dish-serves').value = d.serves || 1;
+      document.getElementById('dish-inventory-rule').value = d.inventoryRule || 'ficha';
+      document.getElementById('dish-direct-product').value = d.directProductId || '';
+      
+      toggleFichaTecnicaView();
+
+      base64ImageTemp = d.img;
+      if (d.img) { document.getElementById('upload-placeholder').style.display = 'none'; document.getElementById('dish-img-preview').src = d.img; document.getElementById('dish-img-preview').style.display = 'block'; } 
+      else { document.getElementById('upload-placeholder').style.display = 'block'; document.getElementById('dish-img-preview').style.display = 'none'; }
+      
+      tempDishIngredients = d.ingredients ? [...d.ingredients] : [];
+      renderDishIngredients(); 
+      document.getElementById('modal-addDish').classList.add('open');
+    }
+    
+    function deleteDish(id) { if(confirm('Excluir este prato?')) { state.dishes = state.dishes.filter(d => d.id !== id); salvarBanco(state); atualizarTela(); showNotif('success', 'Removido.'); } }
+
+
+    // =====================================
+    // FORNECEDORES E ESTOQUE
+    // =====================================
+    function populateSupplierDropdown() {
+      const select = document.getElementById('stock-supplier');
+      select.innerHTML = `<option value="Nenhum">Nenhum / Sem Registro</option>` + state.suppliers.map(sup => `<option value="${sup}">${sup}</option>`).join('');
+    }
+    function openSupplierModal() { document.getElementById('supplier-name').value = ''; document.getElementById('supplier-contact').value = ''; openModal('addSupplier'); }
+    function saveSupplier() {
+      const name = document.getElementById('supplier-name').value.trim();
+      if(!name) return showNotif('warning', 'O nome da empresa é obrigatório.');
+      if(!state.suppliers.includes(name)) { state.suppliers.push(name); salvarBanco(state); }
+      closeModal('addSupplier'); showNotif('success', 'Fornecedor cadastrado.');
+    }
+
+    function renderEstoque() {
+      const itensTotal = state.estoque.length;
+      
+      // Correção do Cálculo: Total = Qtd * Preço Un.
+      let valorTotal = 0; 
+      state.estoque.forEach(i => {
+        valorTotal += (parseFloat(i.qty) || 0) * (parseFloat(i.price) || 0);
+      });
+
+      document.getElementById('estoque-metrics').innerHTML = `
+        <div class="dash-card" style="background: var(--dark); color: white;"><div class="dash-card-title" style="color: rgba(255,255,255,0.7);">TOTAL DE ITENS</div><div class="dash-card-value" style="color: white;">${itensTotal}</div></div>
+        <div class="dash-card" style="border-bottom: 4px solid var(--gold);"><div class="dash-card-title">VALOR TOTAL ESTOQUE</div><div class="dash-card-value">R$ ${valorTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
+      `;
+
+      document.getElementById('estoque-body').innerHTML = state.estoque.map(item => {
+        const qty = parseFloat(item.qty) || 0; 
+        const price = parseFloat(item.price) || 0;
+        const totalLinha = qty * price;
+        const unitLabel = item.unit || 'UN';
+
+        let typeBadge = '';
+        if (item.itemType === 'produto_final') typeBadge = `<span class="badge badge-blue"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> Produto Venda</span>`;
+        else typeBadge = `<span class="badge badge-gray"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Ingrediente</span>`;
+
+        return `
+        <tr>
+          <td style="font-weight:700;">${item.name}</td>
+          <td><span class="badge badge-gray" style="background:var(--gray-100); color:var(--gray-600);">${item.supplier || 'Nenhum'}</span></td>
+          <td>${typeBadge}</td>
+          <td><b>${qty}</b> <span style="font-size:11px; color:#666;">${unitLabel}</span></td>
+          <td>R$ ${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+          <td style="font-weight:700; color:var(--gold);">R$ ${totalLinha.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+          <td>
+            <div style="display:flex; gap:8px;">
+              <button class="icon-btn edit-btn" onclick="editStock(${item.id})"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+              <button class="icon-btn delete-btn" onclick="deleteStock(${item.id})"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="7" style="text-align:center;">Nenhum item em estoque.</td></tr>';
+    }
+
+    function openStockModal() {
+      populateSupplierDropdown(); 
+      document.getElementById('stock-id').value = ''; document.getElementById('stock-name').value = '';
+      document.getElementById('stock-qty').value = ''; document.getElementById('stock-price').value = '';
+      document.getElementById('stock-item-type').value = 'ingrediente';
+      document.getElementById('modal-stock-title').textContent = "Novo Item de Estoque"; openModal('stock');
+    }
+
+    function saveStock() {
+      const id = document.getElementById('stock-id').value; const name = document.getElementById('stock-name').value.trim();
+      const supplier = document.getElementById('stock-supplier').value; const qty = parseFloat(document.getElementById('stock-qty').value);
+      const unit = document.getElementById('stock-unit').value; const price = parseFloat(document.getElementById('stock-price').value);
+      const itemType = document.getElementById('stock-item-type').value;
+
+      if (!name || isNaN(qty) || isNaN(price)) return showNotif('warning', 'Preencha Nome, Qtd. e Preço Unitário.');
+
+      if (id) { const i = state.estoque.findIndex(x => x.id == id); if(i > -1) state.estoque[i] = { id, name, itemType, supplier, qty, unit, price }; } 
+      else { state.estoque.push({ id: Date.now(), name, itemType, supplier, qty, unit, price }); }
+
+      salvarBanco(state); closeModal('stock'); atualizarTela(); showNotif('success', 'Estoque atualizado!');
+    }
+
+    function editStock(id) {
+      const item = state.estoque.find(x => x.id == id); if(!item) return;
+      populateSupplierDropdown(); document.getElementById('modal-stock-title').textContent = "Editar Item";
+      document.getElementById('stock-id').value = item.id; document.getElementById('stock-name').value = item.name;
+      document.getElementById('stock-item-type').value = item.itemType || 'ingrediente';
+      document.getElementById('stock-supplier').value = item.supplier || 'Nenhum'; document.getElementById('stock-qty').value = item.qty;
+      document.getElementById('stock-unit').value = item.unit || 'UN'; document.getElementById('stock-price').value = item.price; openModal('stock');
+    }
+    function deleteStock(id) { if(confirm('Remover?')) { state.estoque = state.estoque.filter(x => x.id != id); salvarBanco(state); atualizarTela(); } }
+
+
+    // =====================================
+    // CUSTOS / FINANCEIRO
+    // =====================================
+    function renderCustos() {
+      let total = 0, fixo = 0, variavel = 0;
+      state.costs.forEach(c => { total += c.value; if (c.type === 'Fixo') fixo += c.value; else variavel += c.value; });
+
+      document.getElementById('cost-metrics').innerHTML = `
+        <div class="dash-card" style="background: var(--dark); color: white;"><div class="dash-card-title" style="color: rgba(255,255,255,0.7);">TOTAL LANÇADO</div><div class="dash-card-value" style="color: white;">R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
+        <div class="dash-card"><div class="dash-card-title">CUSTOS FIXOS</div><div class="dash-card-value">R$ ${fixo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
+        <div class="dash-card"><div class="dash-card-title">CUSTOS VARIÁVEIS</div><div class="dash-card-value">R$ ${variavel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
+      `;
+
+      const formatarData = (isoStr) => { if(!isoStr) return ''; const d = new Date(isoStr); return `${String(d.getDate() + 1).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; };
+
+      document.getElementById('costs-body').innerHTML = state.costs.map(c => {
+        const statusHtml = c.status === 'Pago' 
+          ? `<span class="badge badge-green status-badge" onclick="toggleCostStatus(${c.id})" title="Marcar como Pendente"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> PAGO</span>`
+          : `<span class="badge badge-red status-badge" onclick="toggleCostStatus(${c.id})" title="Marcar como Pago"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> PENDENTE</span>`;
+        
+        const recurringHtml = c.recurring ? `<span class="badge badge-blue" style="margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"></path><path d="M3.51 15A9 9 0 0 0 18.36 18.36L23 14"></path></svg> Recorrente</span>` : '';
+
+        return `
+        <tr>
+          <td style="font-weight:700;">${c.item}<br>${recurringHtml}</td>
+          <td><span class="badge ${c.type === 'Fixo' ? 'badge-gray' : 'badge-gold'}">${c.type}</span></td>
+          <td style="color:#555;">${formatarData(c.date)}</td>
+          <td style="font-weight:700;">R$ ${c.value.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+          <td>${statusHtml}</td>
+          <td><button class="icon-btn delete-btn" onclick="deleteCost(${c.id})"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="6" style="text-align:center;">Nenhum custo lançado.</td></tr>';
+    }
+
+    function toggleCostStatus(id) {
+      const cost = state.costs.find(c => c.id === id);
+      if (cost) { cost.status = cost.status === 'Pago' ? 'Pendente' : 'Pago'; salvarBanco(state); renderCustos(); showNotif('success', `Status alterado.`); }
+    }
+
+    function saveCost() {
+      const item = document.getElementById('cost-item').value.trim();
+      const value = parseFloat(document.getElementById('cost-value').value);
+      const type = document.getElementById('cost-type').value;
+      const date = document.getElementById('cost-date').value;
+      const status = document.getElementById('cost-status').value || 'Pendente';
+      const recurring = document.getElementById('cost-recurring').checked;
+
+      if (!item || isNaN(value) || !date) return showNotif('warning', 'Preencha todos os campos.');
+
+      state.costs.push({ id: Date.now(), item, value, type, date, status, recurring });
+      salvarBanco(state); closeModal('addCost'); atualizarTela(); showNotif('success', 'Custo lançado!');
+      document.getElementById('cost-item').value = ''; document.getElementById('cost-value').value = '';
+      document.getElementById('cost-recurring').checked = false;
+    }
+
+    function deleteCost(id) { state.costs = state.costs.filter(c => c.id !== id); salvarBanco(state); atualizarTela(); }
+
+    checkHighContrast();
+    document.getElementById('cost-date').valueAsDate = new Date();
+    atualizarTela();
+  </script>
+</body>
+</html>

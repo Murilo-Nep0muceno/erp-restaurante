@@ -1,0 +1,143 @@
+.box {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 28px;
+  width: 900px;
+  max-width: 95vw;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.dropLabel {
+  display: block;
+}
+.dropzone {
+  border: 2px dashed var(--gray-200);
+  border-radius: 12px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: center;
+  color: var(--gray-400);
+  overflow: hidden;
+  position: relative;
+}
+.dropzone:hover {
+  border-color: var(--gold);
+}
+.dropzone img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.dropTitle {
+  font-weight: 700;
+  color: var(--dark);
+  font-size: var(--fs-lg);
+}
+.removeImg {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+}
+.fichaTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold);
+  font-weight: 700;
+  margin: 8px 0 14px;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 16px;
+}
+.fichaRow {
+  display: grid;
+  grid-template-columns: 1fr 78px 68px 48px;
+  gap: 8px;
+  align-items: end;
+}
+.fichaRow :global(.form-label) {
+  white-space: nowrap;
+}
+.fichaList {
+  margin-top: 12px;
+  border: 1.5px solid var(--gray-100);
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fichaItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-base);
+  padding: 4px 2px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.fichaItem:last-child {
+  border-bottom: none;
+}
+.fichaEmpty {
+  color: var(--gray-400);
+  font-size: var(--fs-base);
+  text-align: center;
+  padding: 14px;
+}
+.costBox {
+  margin-top: 12px;
+  background: var(--gold-pale);
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.costRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-md);
+  padding: 3px 0;
+}
+.costRow strong {
+  font-size: var(--fs-lg);
+}
+.costHint {
+  font-size: var(--fs-sm);
+  color: var(--gray-600);
+  margin-top: 8px;
+}
+.footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .box {
+    padding: 20px;
+  }
+}

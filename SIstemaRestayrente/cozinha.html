@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cozinha - The Epicurean</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tela cozinha -->
+  <style>
+    :root {
+      --brown: #4A1F12;
+      --brown-mid: #3A170D;
+      --brown-light: #5C2616;
+      --gold: #FF8C42;
+      --gold-light: #FFA56B;
+      --gold-pale: #FFF1E8;
+      --dark: #4A1F12;
+      --red: #dc2626;
+      --green: #16a34a;
+      --blue: #004AAD;
+      --font-mono: 'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace;
+    }
+
+    body { font-family: var(--font-mono) !important; background: var(--gray-50); margin: 0; padding: 0; }
+    input, select, textarea, button { font-family: var(--font-mono) !important; }
+
+    .sidebar {
+      background: var(--brown) !important;
+      border-right: none !important;
+    }
+    .sidebar-brand h2 {
+      color: #FFFFFF !important;
+      font-size: 20px !important;
+    }
+    .sidebar-brand p {
+      color: var(--gold) !important;
+      font-size: 13px !important;
+      font-weight: 700;
+    }
+    .nav-item {
+      color: #FFFFFF !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      padding: 14px 16px !important;
+    }
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05) !important;
+      color: #FFFFFF !important;
+    }
+    .nav-item.active {
+      background: rgba(0,0,0,0.2) !important;
+      color: var(--gold) !important;
+      border-left-color: var(--gold) !important;
+      font-weight: 700 !important;
+    }
+    .nav-item svg {
+      width: 22px !important;
+      height: 22px !important;
+      stroke-width: 2.5;
+    }
+    .sidebar-user {
+      border-top: 1px solid var(--brown-light) !important;
+    }
+    .user-name {
+      color: #FFFFFF !important;
+      font-size: 14px !important;
+    }
+    .logout-btn {
+      color: #ff6b6b !important;
+      font-size: 14px !important;
+      font-weight: 600;
+    }
+
+    body.high-contrast { background: #000000 !important; color: #FFFFFF !important; }
+    body.high-contrast .sidebar { background: #000000 !important; border-right: 2px solid #FFCC00 !important; }
+    body.high-contrast .nav-item { color: #FFFFFF !important; }
+    body.high-contrast .sidebar-brand h2, body.high-contrast .sidebar-brand p, body.high-contrast .user-name { color: #FFFFFF !important; }
+    body.high-contrast .bottom-nav { background: #000000 !important; border-top: 2px solid #FFCC00 !important; }
+    body.high-contrast .topbar { background: #000000 !important; border-bottom: 2px solid #FFCC00 !important; color: #FFFFFF !important; }
+    body.high-contrast .topbar h1, body.high-contrast .topbar-sub, body.high-contrast .topbar div { color: #FFFFFF !important; }
+    body.high-contrast .card, body.high-contrast .kanban-col, body.high-contrast .kanban-card { background: #000000 !important; border: 2px solid #FFFFFF !important; box-shadow: none !important; color: #fff !important; }
+    body.high-contrast .kanban-col-title, body.high-contrast .kanban-card-name, body.high-contrast .kanban-card-items { color: #FFFFFF !important; }
+    body.high-contrast .btn-primary, body.high-contrast .kanban-count { background: #004AAD !important; color: #FFFFFF !important; border: 2px solid #004AAD !important; }
+    body.high-contrast .btn-outline { border: 2px solid #FFCC00 !important; color: #FFCC00 !important; background: #000000 !important; }
+    body.high-contrast .btn-outline.danger { border-color: #FF0000 !important; color: #FF0000 !important; }
+    
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+    .main { flex: 1; margin-left: 0; padding-bottom: 80px; }
+    .topbar { padding: 16px; position: sticky; top: 0; z-index: 50; background: rgba(250, 247, 242, 0.95); backdrop-filter: blur(8px); }
+    body.high-contrast .topbar { background: #000 !important; }
+    .page { padding: 16px; display: none; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .sidebar { display: none; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #fff; border-top: 1px solid var(--gray-200); display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+    .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--gray-400); font-size: 11px; font-weight: 600; cursor: pointer; flex: 1; transition: 0.2s; }
+    .bottom-nav-item.active { color: var(--gold); transform: translateY(-2px); }
+    .bottom-nav-item svg { width: 22px; height: 22px; stroke-width: 2.5; }
+
+    @media (min-width: 768px) {
+      .app { flex-direction: row; }
+      .sidebar { width: 240px; min-height: 100vh; background: var(--brown); position: fixed; left: 0; top: 0; display: flex; flex-direction: column; z-index: 100; }
+      .main { margin-left: 240px; padding-bottom: 0; }
+      .bottom-nav { display: none; }
+      .page { padding: 32px 40px; }
+    }
+
+    .kanban { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+    @media (min-width: 1024px) { .kanban { grid-template-columns: repeat(3, 1fr); } }
+    
+    .kanban-col { background: var(--gray-100); border-radius: 12px; padding: 16px; min-height: 500px; border: 1px solid var(--gray-200); }
+    .kanban-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid var(--gray-200); padding-bottom: 12px; }
+    .kanban-col-title { font-weight: 800; font-size: 15px; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+    .kanban-count { background: #fff; color: var(--dark); border-radius: 20px; padding: 4px 10px; font-size: 13px; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    
+    .kanban-card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); border-left: 4px solid var(--gray-200); transition: 0.2s; }
+    .kanban-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
+    .kanban-card.new { border-left-color: var(--blue); }
+    .kanban-card.cooking { border-left-color: var(--gold); }
+    .kanban-card.ready { border-left-color: var(--green); }
+    
+    .kanban-card-table { font-size: 13px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .kanban-card-name { font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; color: var(--dark); font-family: var(--font-mono); }
+    .kanban-card-items { font-size: 14px; color: var(--gray-600); margin-bottom: 12px; padding-left: 0; list-style: none; font-family: var(--font-mono); }
+    .kanban-card-items li { margin: 6px 0; padding-bottom: 6px; border-bottom: 1px dashed var(--gray-100); }
+    .kanban-card-items li:last-child { border-bottom: none; }
+    
+    .kanban-card-note { background: var(--gold-pale); border-left: 3px solid var(--gold); padding: 8px 10px; font-size: 12px; color: var(--brown-light); margin-bottom: 12px; border-radius: 0 6px 6px 0; font-weight: 600; font-family: var(--font-mono); }
+    .kanban-empty { text-align: center; padding: 40px 20px; color: var(--gray-400); font-size: 14px; font-family: var(--font-mono); border: 2px dashed var(--gray-200); border-radius: 10px; }
+
+    .topbar-sub { font-size: 14px; color: #555555; font-weight: 500; font-family: var(--font-mono); }
+
+    .notif { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(100px); z-index: 1000; background: var(--dark); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-family: var(--font-mono); font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; opacity: 0; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
+    .notif.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .notif.success { background: var(--green); }
+    .notif.error { background: var(--red); }
+    .notif.warning { background: var(--gold); color: var(--dark); }
+
+    .svg-icon { width: 18px; height: 18px; stroke-width: 2.5; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-icon { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-mono); font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+  </div>
+
+  <div class="app">
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h2 style="font-family: var(--font-mono); font-weight: 700;">Cozinha Central</h2>
+        <p>GERENCIAMENTO</p>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('pedidos', this, 0)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Pedidos Ativos
+        </div>
+        
+        <div class="nav-item" style="margin-top: 10px; border-top: 1px solid var(--brown-light); padding-top: 16px;" onclick="toggleHighContrast()">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+            <path d="M12 17a5 5 0 0 0 0-10v10z" fill="currentColor"></path>
+          </svg>
+          Alto Contraste
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-info">
+          <div class="user-avatar" style="background:var(--gold); color:#fff;">CA</div>
+          <div><div class="user-name">Chef Almeida</div><div class="user-role" style="color:#16a34a; font-size:11px;">● Online</div></div>
+        </div>
+        <div class="logout-btn" onclick="window.location.href='index.html'">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sair
+        </div>
+      </div>
+    </nav>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-item active" onclick="showPage('pedidos', null, 0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Pedidos
+      </div>
+      <div class="bottom-nav-item" onclick="toggleHighContrast()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="5"></circle>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          <path d="M12 17a5 5 0 0 0 0-10v10z" fill="currentColor"></path>
+        </svg> Acessib.
+      </div>
+      <div class="bottom-nav-item" onclick="window.location.href='index.html'" style="color: var(--red);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sair
+      </div>
+    </nav>
+
+    <div class="main">
+      
+      <div id="page-pedidos" class="page active">
+        <div class="topbar" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-family: var(--font-mono); font-weight: 700; font-size:24px;">Linha de Produção</div>
+            <div class="topbar-sub">Sincronizado com o Salão</div>
+          </div>
+          <span id="kitchen-time" style="font-family: var(--font-mono); font-size:15px; font-weight:700; color:var(--dark); background:var(--gray-200); padding:8px 16px; border-radius:8px;"></span>
+        </div>
+        
+        <div class="kanban" id="kitchen-kanban"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notif" id="notif">
+    <div id="notif-icon-container"></div>
+    <span id="notif-msg" style="margin-left: 8px;"></span>
+  </div>
+
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+  <script src="banco.js"></script>
+  <script>
+    let state = lerBanco();
+
+    function checkHighContrast() {
+      if (localStorage.getItem('theme-hc') === 'true') { document.body.classList.add('high-contrast'); }
+    }
+    function toggleHighContrast() {
+      const isHC = document.body.classList.toggle('high-contrast');
+      localStorage.setItem('theme-hc', isHC);
+    }
+
+    function atualizarTela() {
+      state = lerBanco();
+      if(!state.orders) state.orders = [];
+      renderKanban();
+    }
+
+    function showPage(pageId, navEl, navIndex) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      
+      document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+      if(navEl && navEl.classList) navEl.classList.add('active');
+      else if(navIndex !== null && document.querySelectorAll('.sidebar .nav-item')[navIndex]) document.querySelectorAll('.sidebar .nav-item')[navIndex].classList.add('active');
+
+      document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
+      if(navIndex !== null && document.querySelectorAll('.bottom-nav-item')[navIndex]) document.querySelectorAll('.bottom-nav-item')[navIndex].classList.add('active');
+    }
+
+    function renderKanban(){
+      const newOrders = state.orders.filter(o=>o.status==='novo');
+      const cooking = state.orders.filter(o=>o.status==='preparando');
+      const ready = state.orders.filter(o=>o.status==='pronto');
+
+      document.getElementById('kitchen-kanban').innerHTML = `
+        <div class="kanban-col">
+          <div class="kanban-col-header">
+            <div class="kanban-col-title">
+              <svg class="svg-icon" style="color:var(--blue);" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+              Pedidos Novos
+            </div>
+            <span class="kanban-count">${String(newOrders.length).padStart(2,'0')}</span>
+          </div>
+          ${newOrders.length ? newOrders.map(o=>kanbanCardHTML(o,'new')).join('') : kanbanEmpty('Nenhum pedido na fila')}
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-col-header">
+            <div class="kanban-col-title">
+              <svg class="svg-icon" style="color:var(--gold);" viewBox="0 0 24 24"><path d="M12 2c0 3-3 5-3 8 0 3 3 4 3 8 0-3 3-5 3-8 0-3-3-4-3-8z"></path></svg>
+              No Fogão
+            </div>
+            <span class="kanban-count">${String(cooking.length).padStart(2,'0')}</span>
+          </div>
+          ${cooking.length ? cooking.map(o=>kanbanCardHTML(o,'cooking')).join('') : kanbanEmpty('Nenhum prato em preparo')}
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-col-header">
+            <div class="kanban-col-title">
+              <svg class="svg-icon" style="color:var(--green);" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              Pronto (Retirada)
+            </div>
+            <span class="kanban-count">${String(ready.length).padStart(2,'0')}</span>
+          </div>
+          ${ready.length ? ready.map(o=>kanbanCardHTML(o,'ready')).join('') : kanbanEmpty('Nenhum prato aguardando')}
+        </div>
+      `;
+    }
+
+    function kanbanCardHTML(o, type){
+      const btns = {
+        'new': `<div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-outline danger btn-icon" style="flex:1; font-size: 14px;" onclick="changeOrderStatus('${o.id}','rejeitado')"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Recusar</button>
+          <button class="btn btn-primary btn-icon" style="flex:2; background:var(--blue); border-color:var(--blue); font-size: 14px;" onclick="changeOrderStatus('${o.id}','preparando')"><svg class="svg-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar</button>
+        </div>`,
+        'cooking': `<button class="btn btn-primary btn-block btn-icon" style="margin-top:16px; background:var(--gold); border-color:var(--gold); color:var(--dark); font-size: 15px; font-weight: 800;" onclick="changeOrderStatus('${o.id}','pronto')"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> Finalizar Prato</button>`,
+        'ready': `<button class="btn btn-primary btn-block btn-icon" style="margin-top:16px; background:var(--green); border-color:var(--green); font-size: 15px; font-weight: 800;" onclick="changeOrderStatus('${o.id}','entregue')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> Confirmar Retirada</button>`
+      };
+
+      const dishesHtml = o.dishes.map(d=>`
+        <li>
+          <span style="font-weight:800; color:var(--dark); font-size: 15px;">${d.qty}x</span> <span style="font-size: 14px;">${d.name}</span>
+          ${d.note ? `<div style="font-size:12px; color:var(--red); font-weight:700; margin-left:16px; margin-top:4px;">↳ OBS: ${d.note}</div>` : ''}
+        </li>
+      `).join('');
+
+      return `
+        <div class="kanban-card ${type}">
+          <div class="kanban-card-table">
+            <span style="font-size: 13px;">${o.table}</span>
+            <span style="color:var(--gray-400); font-weight:600; font-size: 12px;">⌚ ${o.time}</span>
+          </div>
+          <div class="kanban-card-name">Pedido #${o.id.split('-')[1]}</div>
+          
+          <ul class="kanban-card-items">${dishesHtml}</ul>
+          
+          ${o.note ? `<div class="kanban-card-note"><strong style="font-size: 12px;">NOTA GERAL:</strong> <span style="font-size: 13px;">${o.note}</span></div>` : ''}
+          
+          ${btns[type]||''}
+        </div>
+      `;
+    }
+
+    function kanbanEmpty(msg){
+      return `<div class="kanban-empty">
+        <svg class="svg-icon" style="width:36px;height:36px; opacity:0.3; margin-bottom:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <br><span style="font-size: 14px; font-weight: 500;">${msg}</span>
+      </div>`;
+    }
+
+    function changeOrderStatus(orderId, newStatus){
+      const o = state.orders.find(x=>x.id===orderId);
+      if(o) o.status = newStatus;
+      
+      if(newStatus==='entregue' || newStatus==='rejeitado'){
+        const t = state.tables.find(x=>x.orderId===orderId);
+        if(t){ t.status='free'; t.orderId=null; }
+      }
+      
+      salvarBanco(state);
+      renderKanban();
+      
+      if(newStatus==='rejeitado') showNotif('error', 'Pedido recusado.');
+      else if(newStatus==='preparando') showNotif('warning', 'Preparo iniciado.');
+      else showNotif('success', 'Status do pedido atualizado.');
+    }
+
+    function startKitchenClock(){
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById('kitchen-time').textContent = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit', second:'2-digit'});
+      }, 1000);
+    }
+
+    function showNotif(type, msg){
+      const el = document.getElementById('notif');
+      const container = document.getElementById('notif-icon-container');
+      const icons = {
+        'success': `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+        'error': `<svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`,
+        'warning': `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
+      };
+      el.className = `notif ${type}`;
+      container.innerHTML = icons[type] || icons['success'];
+      document.getElementById('notif-msg').textContent = msg;
+      
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    checkHighContrast();
+    atualizarTela();
+    startKitchenClock();
+  </script>
+</body>
+</html>

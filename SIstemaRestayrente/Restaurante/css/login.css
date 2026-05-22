@@ -1,0 +1,16 @@
+.login-layout { display: flex; min-height: 100vh; width: 100vw; }
+.login-banner { flex: 1; background: linear-gradient(135deg, var(--brown), var(--brown-mid)); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; padding: 40px; text-align: center; position: relative; overflow: hidden; }
+.login-banner h1 { font-size: 42px; font-weight: 800; margin-bottom: 16px; z-index: 1; }
+.login-banner p { color: var(--gold); font-size: 14px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; z-index: 1; }
+.login-form-area { width: 100%; max-width: 480px; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 40px 64px; box-shadow: -10px 0 30px rgba(0,0,0,0.05); z-index: 10; }
+.login-box { width: 100%; max-width: 360px; margin: 0 auto; transition: transform 0.1s; }
+.login-header h2 { font-size: 24px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+.login-header p { font-size: 13px; color: #888; margin-bottom: 32px; }
+.error-msg { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 20px; display: none; }
+
+@media (max-width: 768px) {
+  .login-layout { flex-direction: column; }
+  .login-banner { flex: none; min-height: 30vh; padding: 40px 20px; }
+  .login-banner h1 { font-size: 32px; }
+  .login-form-area { max-width: 100%; flex: 1; padding: 40px 24px; border-radius: 24px 24px 0 0; margin-top: -20px; }
+}

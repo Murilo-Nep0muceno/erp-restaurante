@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Login - Painel de Controle</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* =========================================================
+       CORES E FONTES
+       ========================================================= */
+    :root {
+      --brown: #4A1F12;
+      --brown-mid: #3A170D;
+      --brown-light: #5C2616;
+      --gold: #FF8C42;
+      --gold-light: #FFA56B;
+      --gold-pale: #FFF1E8;
+      --dark: #4A1F12;
+      --red: #dc2626;
+      --gray-50: #f9f7f4;
+      --gray-200: #e0d8cc;
+      --gray-400: #a09080;
+      --red-light: #fee2e2;
+      --font-mono: 'JetBrainsMono Nerd Font', 'JetBrains Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font-mono) !important;
+      margin: 0;
+      padding: 0;
+      background: var(--gray-50);
+      overflow-x: hidden;
+    }
+
+    input, button { font-family: var(--font-mono) !important; }
+
+    /* =========================================================
+       LAYOUT SPLIT (TELA DIVIDIDA)
+       ========================================================= */
+    .login-layout {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* Lado Esquerdo (Banner) */
+    .login-banner {
+      flex: 1;
+      background: linear-gradient(135deg, var(--brown), var(--brown-mid));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      padding: 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Elementos decorativos de fundo no banner */
+    .login-banner::before {
+      content: '';
+      position: absolute;
+      top: -10%; left: -10%;
+      width: 50%; height: 50%;
+      background: radial-gradient(circle, rgba(255,140,66,0.1) 0%, transparent 70%);
+    }
+    .login-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -10%; right: -10%;
+      width: 50%; height: 50%;
+      background: radial-gradient(circle, rgba(255,140,66,0.1) 0%, transparent 70%);
+    }
+
+    .banner-icon {
+      width: 80px; height: 80px;
+      margin-bottom: 24px;
+      color: var(--gold);
+    }
+
+    .login-banner h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.1;
+      z-index: 1;
+    }
+
+    .login-banner p {
+      color: var(--gold);
+      font-size: 14px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    /* Lado Direito (Formulário) */
+    .login-form-area {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px 64px;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .login-header {
+      margin-bottom: 32px;
+    }
+
+    .login-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .login-header p {
+      font-size: 13px;
+      color: var(--gray-400);
+    }
+
+    .error-msg {
+      background: var(--red-light);
+      color: var(--red);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+      display: none;
+      border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      font-family: var(--font-mono) !important;
+      font-size: 14px;
+      background: var(--gray-50);
+      transition: .2s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-input:focus { border-color: var(--gold); background: #fff; }
+
+    .btn-primary { border: none; cursor: pointer; transition: 0.2s; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .login-layout { flex-direction: column; }
+      .login-banner { padding: 40px 20px; flex: none; min-height: 30vh; }
+      .login-banner h1 { font-size: 32px; }
+      .login-form-area { max-width: 100%; flex: 1; padding: 40px 24px; box-shadow: none; border-top-left-radius: 24px; border-top-right-radius: 24px; margin-top: -20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-layout">
+    
+    <div class="login-banner">
+    <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"></path>
+  <line x1="6" y1="17" x2="18" y2="17"></line>
+</svg>
+      <h1>Sistema Restaurante</h1>
+      <p>Gestão Inteligente</p>
+    </div>
+
+    <div class="login-form-area">
+      <div class="login-box" id="login-box">
+        
+        <div class="login-header">
+          <h2>Bem-vindo de volta</h2>
+          <p>Insira suas credenciais para acessar o painel</p>
+        </div>
+
+        <div class="error-msg" id="login-erro">
+          Usuário ou senha incorretos!
+        </div>
+
+        <form id="form-login" onsubmit="realizarLogin(event)">
+          <div class="form-group">
+            <label class="form-label" style="color: var(--dark); display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">Usuário</label>
+            <input type="text" class="form-input" id="username" placeholder="Digite seu usuário" required autocomplete="off">
+          </div>
+          
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label" style="color: var(--dark); display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px;">Senha</label>
+            <input type="password" class="form-input" id="password" placeholder="••••••••" required>
+          </div>
+
+          <button type="submit" class="btn-primary" style="margin-top: 32px; background: var(--dark); color: #fff; width: 100%; border-radius: 8px; font-weight: 700; height: 48px; font-size: 16px;">
+            Entrar
+          </button>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- IMPORTA O BANCO DE DADOS -->
+  <script src="banco.js"></script>
+
+<script>
+    function realizarLogin(event) {
+      event.preventDefault();
+
+      const userDigitado = document.getElementById('username').value.trim().toLowerCase();
+      const passDigitada = document.getElementById('password').value.trim();
+      const erroEl = document.getElementById('login-erro');
+
+      erroEl.style.display = 'none';
+
+      const state = lerBanco();
+
+      if (!state.users) state.users = [];
+
+      if (!state.users.find(u => u.login === 'admin')) {
+        state.users.push({ id: 1, name: 'Administrador Global', login: 'admin', pass: 'admin', role: 'Balcão' });
+      }
+      if (!state.users.find(u => u.login === 'balcao')) {
+        state.users.push({ id: 2, name: 'Operador de Balcão', login: 'balcao', pass: 'balcao', role: 'Balcão' });
+      }
+      if (!state.users.find(u => u.login === 'cozinha')) {
+        state.users.push({ id: 3, name: 'Cozinha Central', login: 'cozinha', pass: 'cozinha', role: 'Cozinha' });
+      }
+      if (!state.users.find(u => u.login === 'garcom')) {
+        state.users.push({ id: 4, name: 'Garçom Equipe A', login: 'garcom', pass: 'garcom', role: 'Garçom' });
+      }
+      
+      salvarBanco(state);
+
+      const usuarioEncontrado = state.users.find(u => 
+        u.login.toLowerCase() === userDigitado && u.pass === passDigitada
+      );
+
+      if (usuarioEncontrado) {
+        
+        // NOVO: SALVA O USUÁRIO LOGADO NO NAVEGADOR
+        localStorage.setItem('logged_user', JSON.stringify(usuarioEncontrado));
+
+        switch(usuarioEncontrado.role) {
+          case 'Balcão':
+            if (usuarioEncontrado.login === 'admin') {
+              window.location.href = 'admin.html';
+            } else {
+              window.location.href = 'balcao.html';
+            }
+            break;
+          case 'Garçom':
+            window.location.href = 'garcom.html';
+            break;
+          case 'Cozinha':
+            window.location.href = 'cozinha.html';
+            break;
+          case 'Cliente':
+            window.location.href = 'cliente.html';
+            break;
+          default:
+            window.location.href = 'balcao.html';
+        }
+      } 
+      else {
+        erroEl.style.display = 'block';
+        const box = document.getElementById('login-box');
+        box.style.transition = 'transform 0.1s';
+        box.style.transform = 'translateX(10px)';
+        setTimeout(() => box.style.transform = 'translateX(-10px)', 100);
+        setTimeout(() => box.style.transform = 'translateX(10px)', 200);
+        setTimeout(() => box.style.transform = 'translateX(0)', 300);
+      }
+    }
+  </script>
+</body>
+</html>
