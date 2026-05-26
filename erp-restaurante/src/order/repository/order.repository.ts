@@ -67,7 +67,10 @@ export class OrderRepository {
   async setKitchen(closed: boolean) {
     const setting = await this.prisma.setting.upsert({
       where: { id: 'singleton' },
-      update: { kitchenClosed: closed, kitchenClosedAt: closed ? new Date() : null },
+      update: {
+        kitchenClosed: closed,
+        kitchenClosedAt: closed ? new Date() : null,
+      },
       create: {
         id: 'singleton',
         kitchenClosed: closed,

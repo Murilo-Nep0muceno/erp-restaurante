@@ -1,45 +1,51 @@
 .box {
-  background: var(--white);
-  border-radius: 14px;
-  padding: 28px;
-  width: 900px;
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7);
+  width: var(--size-modal-dish-w);
   max-width: 95vw;
   max-height: 92vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
 }
+
 .header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
+
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-6);
 }
+
 .dropLabel {
   display: block;
 }
+
 .dropzone {
-  border: 2px dashed var(--gray-200);
-  border-radius: 12px;
-  min-height: 340px;
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-md);
+  min-height: var(--size-dropzone-h);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   cursor: pointer;
   text-align: center;
-  color: var(--gray-400);
+  color: var(--color-text-muted);   /* 8.1 : 1 on white ✓ AAA */
   overflow: hidden;
   position: relative;
 }
+
 .dropzone:hover {
-  border-color: var(--gold);
+  border-color: var(--color-accent);
 }
+
 .dropzone img {
   position: absolute;
   inset: 0;
@@ -47,97 +53,113 @@
   height: 100%;
   object-fit: cover;
 }
+
 .dropTitle {
   font-weight: 700;
-  color: var(--dark);
+  color: var(--color-text-primary);
   font-size: var(--fs-lg);
 }
+
 .removeImg {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: var(--space-2);
+  right: var(--space-2);
   z-index: 2;
 }
+
 .fichaTitle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--gold);
+  gap: var(--space-2);
+  color: var(--color-accent-on-light);   /* 8.7 : 1 on white ✓ AAA */
   font-weight: 700;
-  margin: 8px 0 14px;
-  border-top: 1px solid var(--gray-100);
-  padding-top: 16px;
+  margin: var(--space-2) 0 var(--space-4);
+  border-top: 1px solid var(--color-gray-100);
+  padding-top: var(--space-4);
 }
+
 .fichaRow {
   display: grid;
   grid-template-columns: 1fr 78px 68px 48px;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: end;
 }
+
 .fichaRow :global(.form-label) {
   white-space: nowrap;
 }
+
 .fichaList {
-  margin-top: 12px;
-  border: 1.5px solid var(--gray-100);
-  border-radius: 10px;
-  padding: 10px;
-  min-height: 64px;
+  margin-top: var(--space-3);
+  border: 1.5px solid var(--color-gray-100);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+  min-height: var(--size-ficha-list-h);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
+
 .fichaItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-2);
   font-size: var(--fs-base);
-  padding: 4px 2px;
-  border-bottom: 1px solid var(--gray-100);
+  padding: var(--space-1) var(--space-1);
+  border-bottom: 1px solid var(--color-gray-100);
 }
+
 .fichaItem:last-child {
   border-bottom: none;
 }
+
 .fichaEmpty {
-  color: var(--gray-400);
+  color: var(--color-text-muted);   /* 8.1 : 1 on white ✓ AAA */
   font-size: var(--fs-base);
   text-align: center;
-  padding: 14px;
+  padding: var(--space-4);
 }
+
 .costBox {
-  margin-top: 12px;
-  background: var(--gold-pale);
-  border: 1.5px solid var(--gold);
-  border-radius: 12px;
-  padding: 14px 16px;
+  margin-top: var(--space-3);
+  background: var(--color-accent-pale);
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
 }
+
 .costRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: var(--fs-md);
-  padding: 3px 0;
+  padding: var(--space-1) 0;
 }
+
 .costRow strong {
   font-size: var(--fs-lg);
 }
+
 .costHint {
   font-size: var(--fs-sm);
-  color: var(--gray-600);
-  margin-top: 8px;
+  color: var(--color-text-secondary);   /* 7.9 : 1 on accent-pale ✓ AAA */
+  margin-top: var(--space-2);
 }
+
 .footer {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   justify-content: flex-end;
-  margin-top: 24px;
+  margin-top: var(--space-6);
 }
+
 @media (max-width: 760px) {
   .grid {
     grid-template-columns: 1fr;
   }
+
   .box {
-    padding: 20px;
+    padding: var(--space-5);
   }
 }

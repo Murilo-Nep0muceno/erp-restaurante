@@ -62,7 +62,7 @@ export default function SuppliersSection() {
     setEditing(s);
     setForm({
       name: s.name,
-      cnpj: s.cnpj,
+      cnpj: s.cnpj ?? '',
       phone: s.phone ?? '',
       email: s.email ?? '',
     });
@@ -74,13 +74,12 @@ export default function SuppliersSection() {
     e.preventDefault();
     setSaving(true);
     setFormError('');
-    const payload: CreateSupplierInput = {
-      name: form.name,
-      cnpj: form.cnpj.replace(/\D/g, ''),
-    };
-    // Omit empty optional fields so the backend's @IsEmail doesn't reject ''.
+    // Omit empty optional fields so the backend's @IsCNPJ/@IsEmail don't reject ''.
+    const payload: CreateSupplierInput = { name: form.name };
+    const cnpj = form.cnpj.replace(/\D/g, '');
     const phone = form.phone.trim();
     const email = form.email.trim();
+    if (cnpj) payload.cnpj = cnpj;
     if (phone) payload.phone = phone;
     if (email) payload.email = email;
     try {
@@ -146,7 +145,7 @@ export default function SuppliersSection() {
               return (
                 <tr key={s.id_supplier}>
                   <td style={{ fontWeight: 600 }}>{s.name}</td>
-                  <td>{maskCNPJ(s.cnpj)}</td>
+                  <td>{s.cnpj ? maskCNPJ(s.cnpj) : <span style={{ color: 'var(--gray-400)' }}>—</span>}</td>
                   <td>
                     {s.phone || s.email ? (
                       <div style={{ display: 'flex', flexDirection: 'column', fontSize: 'var(--fs-base)' }}>
@@ -195,13 +194,12 @@ export default function SuppliersSection() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">CNPJ</label>
+            <label className="form-label">CNPJ (opcional)</label>
             <input
               className="form-input"
               value={maskCNPJ(form.cnpj)}
               onChange={(e) => setForm({ ...form, cnpj: e.target.value })}
               placeholder="00.000.000/0000-00"
-              required
             />
           </div>
           <div className="form-row cols-2">

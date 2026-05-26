@@ -6,7 +6,10 @@ export class LogService {
   constructor(private prisma: PrismaService) {}
 
   list() {
-    return this.prisma.log.findMany({ orderBy: { createdAt: 'desc' }, take: 100 });
+    return this.prisma.log.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
   }
 
   create(user: string, action: string) {

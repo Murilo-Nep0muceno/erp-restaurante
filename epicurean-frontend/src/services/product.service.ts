@@ -1,14 +1,8 @@
 import api from './api';
-import type { Product, CreateProductInput, PendingPurchasedItem } from '../types';
+import type { Product, CreateProductInput } from '../types';
 
 export async function getProducts(): Promise<Product[]> {
   const { data } = await api.get<Product[]>('/product');
-  return data;
-}
-
-// Purchased items not yet promoted to a stock item.
-export async function getPendingPurchases(): Promise<PendingPurchasedItem[]> {
-  const { data } = await api.get<PendingPurchasedItem[]>('/product/pending-purchases');
   return data;
 }
 
@@ -27,6 +21,8 @@ export async function updateProduct(id: string, input: CreateProductInput): Prom
   return data;
 }
 
-export async function deleteProduct(id: string): Promise<void> {
-  await api.delete(`/product/${id}`);
+export async function deleteProduct(id: string, removeFromDishes = false): Promise<void> {
+  await api.delete(`/product/${id}`, {
+    params: removeFromDishes ? { removeFromDishes: 'true' } : undefined,
+  });
 }

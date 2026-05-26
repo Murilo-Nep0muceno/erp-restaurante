@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -20,11 +27,11 @@ export class CreateProductDto {
   @ApiProperty({ required: false })
   current_quantity?: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  @ApiProperty()
-  minimum_quantity!: number;
+  @ApiProperty({ required: false })
+  minimum_quantity?: number;
 
   // Cost (custo médio) is derived from purchases server-side.
   @IsOptional()
@@ -43,6 +50,16 @@ export class CreateProductDto {
   @IsString()
   @ApiProperty({ required: false })
   type?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  expiry_date?: string;
 
   @IsOptional()
   @IsUUID()

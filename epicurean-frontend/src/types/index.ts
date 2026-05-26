@@ -13,7 +13,13 @@ export interface LoginResponse {
 }
 
 // ---------- Product (estoque) ----------
-export type UnitMeasurement = 'kg' | 'g' | 'l' | 'ml' | 'un';
+export type UnitMeasurement = 'kg' | 'g' | 'l' | 'ml' | 'un' | 'cx' | 'pct';
+
+// Tipos de item de estoque:
+// INGREDIENTE — entra na ficha técnica de receitas
+// INSUMO — descartáveis, embalagens, limpeza (não entra na ficha)
+// PRODUTO — item finalizado vendido ao cliente
+export type ProductType = 'INGREDIENTE' | 'INSUMO' | 'PRODUTO';
 
 export interface Product {
   id_product: string;
@@ -21,33 +27,29 @@ export interface Product {
   unit_measurement: string;
   current_quantity: number;
   minimum_quantity: number;
-  unit_price?: number | null; // custo médio (vem das compras)
+  unit_price?: number | null; // custo médio ponderado (CMP)
   selling_price?: number | null; // preço de venda definido pelo usuário
   type?: string | null;
+  notes?: string | null;
+  expiry_date?: string | null;
   id_supplier?: string | null;
   supplier?: Supplier | null;
   createdAt?: string;
 }
 
-// On create the name must match a pending purchased item; cost, quantity and
-// supplier are derived server-side. Used for update too (config fields only).
+// Cadastro direto / edição. Na edição, custo e saldo são preservados no
+// backend; os campos de estoque inicial valem para a criação (Fluxo A).
 export interface CreateProductInput {
   name: string;
   unit_measurement: string;
-  minimum_quantity: number;
+  minimum_quantity?: number;
+  current_quantity?: number;
+  unit_price?: number | null;
   selling_price?: number | null;
   type?: string | null;
-}
-
-// A purchased line item not yet promoted to a stock item.
-export interface PendingPurchasedItem {
-  name: string;
-  quantity: number;
-  unit_measurement: string;
-  cost: number;
-  id_supplier: string | null;
-  supplierName: string | null;
-  purchaseCount: number;
+  notes?: string | null;
+  expiry_date?: string | null;
+  id_supplier?: string | null;
 }
 
 // ---------- Supplier (fornecedor) ----------
@@ -62,7 +64,7 @@ export interface Supplier {
 
 export interface CreateSupplierInput {
   name: string;
-  cnpj: string;
+  cnpj?: string;
   phone?: string;
   email?: string;
 }

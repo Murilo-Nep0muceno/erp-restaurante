@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/createuser.dto';
@@ -57,7 +59,12 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Usuário excluído' })
   @ApiBearerAuth()
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string, @Req() req: { user?: { id?: string } }) {
+    // O administrador global não pode excluir a própria conta — evita o sistema
+    // ficar sem ninguém capaz de gerenciá-lo.
+    if (req.user?.id === id) {
+      throw new ForbiddenException('Você não pode excluir a própria conta.');
+    }
     return this.userRepository.deleteUser(id);
   }
 

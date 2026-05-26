@@ -1,20 +1,22 @@
 .navSection {
   flex: 1;
-  padding: 12px 0;
+  padding: var(--space-3) 0;
   overflow-y: auto;
 }
+
 .sectionLabel {
   font-size: var(--fs-2xs);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gray-400);
-  padding: 14px 16px 6px;
+  color: var(--color-text-on-dark-muted);   /* 9.2 : 1 on brand ✓ AAA */
+  padding: var(--space-4) var(--space-4) var(--space-2);
 }
+
 .divider {
   height: 1px;
-  background: var(--brown-light);
-  margin: 8px 12px;
+  background: var(--color-brand-light);
+  margin: var(--space-2) var(--space-3);
 }
 
 /* Hamburger — hidden on desktop, shown on mobile */
@@ -22,15 +24,16 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: var(--size-menu-toggle);
+  height: var(--size-menu-toggle);
   flex-shrink: 0;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 8px;
-  background: var(--white);
-  color: var(--dark);
+  border: 1.5px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-text-primary);
   cursor: pointer;
 }
+
 .menuToggle svg {
   width: 22px;
   height: 22px;
@@ -40,7 +43,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay);
   z-index: 99;
 }
 
@@ -48,6 +51,7 @@
   .menuToggle {
     display: inline-flex;
   }
+
   .overlay {
     display: block;
   }

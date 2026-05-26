@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProductUseCase } from './useCases/product.usecase';
@@ -34,18 +35,6 @@ export class ProductController {
   @ApiResponse({ status: 200, description: 'Product criado com sucesso' })
   async create(@Body() body: CreateProductDto) {
     return this.ProductUseCase.execute(body);
-  }
-
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles('GERENTE', 'BALCONISTA')
-  @ApiBearerAuth()
-  @Get('pending-purchases')
-  @ApiOperation({
-    summary: 'Itens comprados ainda não cadastrados no estoque',
-  })
-  @ApiResponse({ status: 200, description: 'Itens pendentes retornados' })
-  async getPendingPurchases() {
-    return this.ProductUseCase.getPendingPurchasedItems();
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -90,7 +79,10 @@ export class ProductController {
   @Delete(':id')
   @ApiOperation({ summary: 'Deletar Product por ID' })
   @ApiResponse({ status: 200, description: 'Product deletado com sucesso' })
-  async delete(@Param('id') id: string): Promise<Product> {
-    return this.ProductUseCase.delete(id);
+  async delete(
+    @Param('id') id: string,
+    @Query('removeFromDishes') removeFromDishes?: string,
+  ): Promise<Product> {
+    return this.ProductUseCase.delete(id, removeFromDishes === 'true');
   }
 }

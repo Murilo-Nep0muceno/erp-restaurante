@@ -36,4 +36,4 @@ export function convertQty(qty: number, from: string, to: string): number {
   return qty;
 }
 
-export const ALL_UNITS = ['kg', 'g', 'l', 'ml', 'un'];
+export const ALL_UNITS = ['kg', 'g', 'l', 'ml', 'un', 'cx', 'pct'];

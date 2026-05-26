@@ -23,8 +23,8 @@ export function formatDateTime(iso: string): string {
 }
 
 // 00.000.000/0000-00
-export function maskCNPJ(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 14);
+export function maskCNPJ(value: string | null | undefined): string {
+  const digits = (value ?? '').replace(/\D/g, '').slice(0, 14);
   return digits
     .replace(/^(\d{2})(\d)/, '$1.$2')
     .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
@@ -33,8 +33,8 @@ export function maskCNPJ(value: string): string {
 }
 
 // (00) 00000-0000 — handles 10 or 11 digit BR numbers.
-export function maskPhone(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
+export function maskPhone(value: string | null | undefined): string {
+  const digits = (value ?? '').replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 10) {
     return digits
       .replace(/^(\d{2})(\d)/, '($1) $2')

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import Layout from '../components/Layout';
 import type { NavItem } from '../components/Layout';
 import {
-  IconBox,
+  IconClipboard,
   IconDashboard,
+  IconDatabase,
   IconHelp,
-  IconMenu,
   IconStar,
   IconTruck,
   IconUsers,
@@ -20,8 +20,8 @@ import SatisfactionSection from './balcao/SatisfactionSection';
 
 const NAV: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', icon: <IconDashboard /> },
-  { key: 'cardapio', label: 'Cardápio (Fichas)', icon: <IconMenu /> },
-  { key: 'estoque', label: 'Estoque / Insumos', icon: <IconBox /> },
+  { key: 'cardapio', label: 'Cardápio', icon: <IconClipboard /> },
+  { key: 'estoque', label: 'Estoque', icon: <IconDatabase /> },
   { key: 'compras', label: 'Compras', icon: <IconTruck /> },
   { key: 'fornecedores', label: 'Fornecedores', icon: <IconUsers /> },
   { key: 'satisfacao', label: 'Pesquisa de Satisfação', icon: <IconStar /> },

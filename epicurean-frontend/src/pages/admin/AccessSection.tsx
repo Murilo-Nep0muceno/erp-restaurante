@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import { useFetch } from '../../hooks/useFetch';
+import { useAuth } from '../../store/authContext';
 import { useNotif } from '../../store/notifContext';
 import { createUser, deleteUser, getUsers, updateUser } from '../../services/user.service';
 import { recordLog } from '../../services/log.service';
@@ -46,6 +47,7 @@ interface AccessSectionProps {
 
 export default function AccessSection({ newUserOpen, onCloseNewUser }: AccessSectionProps) {
   const { data, loading, error, reload } = useFetch(getUsers);
+  const { user: currentUser } = useAuth();
   const { notify } = useNotif();
 
   // create form
@@ -61,6 +63,10 @@ export default function AccessSection({ newUserOpen, onCloseNewUser }: AccessSec
   const [editName, setEditName] = useState('');
   const [editRole, setEditRole] = useState<Role>('BALCONISTA');
   const [editSaving, setEditSaving] = useState(false);
+
+  // delete confirmation
+  const [confirmDelete, setConfirmDelete] = useState<UserAccount | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const accounts = data ?? [];
   const total = accounts.length;
@@ -118,15 +124,23 @@ export default function AccessSection({ newUserOpen, onCloseNewUser }: AccessSec
     }
   }
 
-  async function handleDelete(account: UserAccount) {
-    if (!window.confirm(`Excluir a conta "${account.userName}"?`)) return;
+  async function doDelete(account: UserAccount) {
+    if (account.id === currentUser?.id) {
+      notify('Você não pode excluir a própria conta.', '⚠');
+      setConfirmDelete(null);
+      return;
+    }
+    setDeletingId(account.id);
     try {
       await deleteUser(account.id);
       recordLog(`Excluiu a conta "${account.userName}"`);
       notify('Conta excluída.');
+      setConfirmDelete(null);
       await reload();
     } catch (err) {
       notify(getApiErrorMessage(err), '⚠');
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -197,7 +211,13 @@ export default function AccessSection({ newUserOpen, onCloseNewUser }: AccessSec
                       type="button"
                       className="btn btn-sm"
                       style={trashBtn}
-                      onClick={() => handleDelete(a)}
+                      onClick={() => setConfirmDelete(a)}
+                      disabled={a.id === currentUser?.id}
+                      title={
+                        a.id === currentUser?.id
+                          ? 'Você não pode excluir a própria conta'
+                          : 'Excluir'
+                      }
                       aria-label="Excluir"
                     >
                       <IconTrash />
@@ -314,6 +334,46 @@ export default function AccessSection({ newUserOpen, onCloseNewUser }: AccessSec
           </div>
         </form>
       </Modal>
+
+      {/* Excluir conta */}
+      {confirmDelete && (
+        <Modal
+          open
+          title="Excluir conta"
+          onClose={() => setConfirmDelete(null)}
+          footer={
+            <>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setConfirmDelete(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn btn-red"
+                onClick={() => void doDelete(confirmDelete)}
+                disabled={deletingId === confirmDelete.id}
+              >
+                {deletingId === confirmDelete.id ? 'Excluindo…' : 'Excluir'}
+              </button>
+            </>
+          }
+        >
+          <div className="confirm-body">
+            <span className="confirm-icon">
+              <IconTrash width={22} height={22} />
+            </span>
+            <div className="confirm-text">
+              <p>
+                Deseja excluir a conta <strong>{confirmDelete.userName}</strong>?
+              </p>
+              <p className="confirm-hint">Esta ação não pode ser desfeita.</p>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

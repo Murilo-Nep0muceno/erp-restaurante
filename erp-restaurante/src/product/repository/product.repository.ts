@@ -31,9 +31,32 @@ export class ProductRepository {
     });
   }
 
-  async deleteProduct(id: string): Promise<Product> {
-    return this.prisma.product.delete({
+  async findDishesUsingProduct(
+    id: string,
+  ): Promise<{ id_recipe_dish: string; name_dish: string }[]> {
+    const rows = await this.prisma.dish.findMany({
       where: { id_product: id },
+      select: { recipe_dish: { select: { id_recipe_dish: true, name_dish: true } } },
+    });
+    const byId = new Map<string, string>();
+    for (const r of rows) byId.set(r.recipe_dish.id_recipe_dish, r.recipe_dish.name_dish);
+    return [...byId].map(([id_recipe_dish, name_dish]) => ({ id_recipe_dish, name_dish }));
+  }
+
+  async deleteProduct(id: string, removeFromDishes = false): Promise<Product> {
+    return this.prisma.$transaction(async (tx) => {
+      // Só quando o usuário confirma a remoção do ingrediente das fichas.
+      if (removeFromDishes) {
+        await tx.dish.deleteMany({ where: { id_product: id } });
+      }
+      await tx.movement_stock.deleteMany({ where: { id_product: id } });
+      await tx.product_supplier.deleteMany({ where: { id_product: id } });
+      // Mantém o histórico da compra, mas solta a referência ao produto.
+      await tx.purchase_items.updateMany({
+        where: { id_product: id },
+        data: { id_product: null },
+      });
+      return tx.product.delete({ where: { id_product: id } });
     });
   }
 
@@ -54,19 +77,14 @@ export class ProductRepository {
     });
   }
 
-  // Purchase line items not yet promoted to a stock item, newest first.
-  async findPendingPurchaseItems() {
-    return this.prisma.purchase_items.findMany({
-      where: { id_product: null },
-      include: { purchase: { include: { supplier: true } } },
-      orderBy: { purchase: { createdAt: 'desc' } },
-    });
+  async createMovement(data: Prisma.Movement_stockUncheckedCreateInput) {
+    return this.prisma.movement_stock.create({ data });
   }
 
-  async linkPurchaseItemsToProduct(name: string, id_product: string) {
-    return this.prisma.purchase_items.updateMany({
-      where: { name, id_product: null },
-      data: { id_product },
+  async setDefaultSupplier(id_product: string, id_supplier: string) {
+    return this.prisma.product.update({
+      where: { id_product },
+      data: { id_supplier },
     });
   }
 }

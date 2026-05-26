@@ -36,6 +36,8 @@ model Product {
   unit_price       Float?
   selling_price    Float?
   type             String?          @default("INGREDIENTE")
+  notes            String?
+  expiry_date      String?
   id_supplier      String?          @db.Uuid
   supplier         Supplier?        @relation(fields: [id_supplier], references: [id_supplier])
   purchase_items   Purchase_items[]
@@ -71,7 +73,7 @@ model Purchase_items {
 model Supplier {
   id_supplier String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
-  cnpj        String   @unique
+  cnpj        String?  @unique
   phone       String?
   email       String?
   createdAt   DateTime @default(now())

@@ -1,0 +1,90 @@
+.sectionToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 6px;
+  margin-top: 8px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--gray-200);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--duration-base);
+}
+
+.sectionToggle:hover {
+  background: var(--gray-50);
+}
+
+.chevron {
+  color: var(--gold);
+  font-size: 0.9rem;
+  width: 1em;
+  flex-shrink: 0;
+}
+
+.label {
+  flex: 1;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-base);
+  color: var(--gray-600);
+}
+
+.sectionToggle:hover .label {
+  color: var(--brown);
+}
+
+.optional {
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--gray-400);
+}
+
+.panel {
+  padding: 4px 6px 10px;
+}
+
+.newSupplierRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.helper {
+  font-size: var(--fs-sm);
+  color: var(--gray-400);
+  margin-top: 6px;
+  display: block;
+}
+
+/* Input com a unidade de medida fixada à direita. */
+.qtyGroup {
+  display: flex;
+  align-items: stretch;
+}
+
+.qtyGroup > input {
+  flex: 1;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.qtyUnit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  min-width: 44px;
+  justify-content: center;
+  background: var(--gray-100);
+  border: 1.5px solid var(--gray-200);
+  border-left: none;
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+  color: var(--gray-600);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}

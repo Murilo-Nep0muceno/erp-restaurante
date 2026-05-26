@@ -38,7 +38,13 @@ export class UserRepository {
   // Listagem sem expor a senha.
   findAll() {
     return this.prisma.user.findMany({
-      select: { id: true, userName: true, name: true, role: true, createdAt: true },
+      select: {
+        id: true,
+        userName: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -47,7 +53,13 @@ export class UserRepository {
     return this.prisma.user.update({
       where: { id },
       data,
-      select: { id: true, userName: true, name: true, role: true, createdAt: true },
+      select: {
+        id: true,
+        userName: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      },
     });
   }
 

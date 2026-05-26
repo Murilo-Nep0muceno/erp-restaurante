@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BackupData {
   users?: any[];
   products?: any[];
@@ -80,18 +79,24 @@ export class BackupService {
       await tx.setting.deleteMany();
 
       // insert (parents first)
-      if (data.settings?.length) await tx.setting.createMany({ data: data.settings });
+      if (data.settings?.length)
+        await tx.setting.createMany({ data: data.settings });
       if (data.users?.length) await tx.user.createMany({ data: data.users });
-      if (data.suppliers?.length) await tx.supplier.createMany({ data: data.suppliers });
-      if (data.products?.length) await tx.product.createMany({ data: data.products });
-      if (data.recipeDishes?.length) await tx.recipe_Dish.createMany({ data: data.recipeDishes });
+      if (data.suppliers?.length)
+        await tx.supplier.createMany({ data: data.suppliers });
+      if (data.products?.length)
+        await tx.product.createMany({ data: data.products });
+      if (data.recipeDishes?.length)
+        await tx.recipe_Dish.createMany({ data: data.recipeDishes });
       if (data.dishes?.length) await tx.dish.createMany({ data: data.dishes });
-      if (data.purchases?.length) await tx.purchase.createMany({ data: data.purchases });
+      if (data.purchases?.length)
+        await tx.purchase.createMany({ data: data.purchases });
       if (data.purchaseItems?.length)
         await tx.purchase_items.createMany({ data: data.purchaseItems });
       if (data.productSuppliers?.length)
         await tx.product_supplier.createMany({ data: data.productSuppliers });
-      if (data.movements?.length) await tx.movement_stock.createMany({ data: data.movements });
+      if (data.movements?.length)
+        await tx.movement_stock.createMany({ data: data.movements });
       if (data.logs?.length) await tx.log.createMany({ data: data.logs });
     });
     return { restored: true };

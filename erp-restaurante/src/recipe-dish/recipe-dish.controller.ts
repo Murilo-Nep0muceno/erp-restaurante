@@ -48,7 +48,9 @@ export class RecipeDishController {
     return this.RecipeDishUseCase.getAll();
   }
 
-  @ApiOperation({ summary: 'Cardápio público (sem login) — pratos disponíveis' })
+  @ApiOperation({
+    summary: 'Cardápio público (sem login) — pratos disponíveis',
+  })
   @ApiResponse({ status: 200, description: 'Lista pública de pratos' })
   @Get('public')
   async getPublic() {

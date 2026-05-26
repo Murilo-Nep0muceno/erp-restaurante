@@ -1,5 +1,5 @@
 export class ProductValidator {
-  static readonly validUnits = ['kg', 'g', 'un', 'l', 'ml'];
+  static readonly validUnits = ['kg', 'g', 'un', 'l', 'ml', 'cx', 'pct'];
 
   static validateUnit(unit: string) {
     if (!this.validUnits.includes(unit))

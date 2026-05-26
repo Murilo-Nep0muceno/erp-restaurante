@@ -13,7 +13,7 @@ export class SupplierUseCase {
 
   private async validateSupplierCnpjAndName(
     name: string,
-    cnpj: string,
+    cnpj: string | undefined,
     excludeId?: string,
   ) {
     const nameSupplier = name.trim().toLowerCase();
@@ -23,9 +23,11 @@ export class SupplierUseCase {
     if (supplierExists && supplierExists.id_supplier !== excludeId)
       throw new ConflictException('Fornecedor já existe');
 
-    const cnpjExists = await this.SupplierRepository.findByCnpj(cnpj);
-    if (cnpjExists && cnpjExists.id_supplier !== excludeId)
-      throw new ConflictException('CNPJ já cadastrado');
+    if (cnpj) {
+      const cnpjExists = await this.SupplierRepository.findByCnpj(cnpj);
+      if (cnpjExists && cnpjExists.id_supplier !== excludeId)
+        throw new ConflictException('CNPJ já cadastrado');
+    }
   }
 
   async execute(data: SupplierDto): Promise<Supplier> {

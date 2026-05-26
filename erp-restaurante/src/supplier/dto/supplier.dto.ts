@@ -8,11 +8,11 @@ export class SupplierDto {
   @IsString()
   name!: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   @IsCNPJ({ message: 'CNPJ inválido' })
-  cnpj!: string;
+  cnpj?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

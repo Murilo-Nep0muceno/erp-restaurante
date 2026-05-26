@@ -1,6 +1,11 @@
 import { UnitConverter } from '../domain/converter.unit.measurement';
 import { PurchaseDto } from '../dto/purchase.dto';
-import { PurchaseRepository } from '../repository/purchase.repository';
+import {
+  NewProductInput,
+  PurchaseRepository,
+  TopUpInput,
+} from '../repository/purchase.repository';
+import { weightedAverageCost } from '../../product/domain/cost';
 import { ConflictException, Injectable } from '@nestjs/common';
 import crypto from 'crypto';
 
@@ -10,101 +15,92 @@ export class PurchaseUseCase {
 
   async execute(data: PurchaseDto) {
     const idSupplier = data.id_supplier;
-    const dataCompra = data.date;
+    const date = data.date;
 
-    // Items are free-text. Match each to an existing product by name; matched
-    // items top up stock, unmatched ones stay "pending" (id_product null) and
-    // become selectable when creating a stock item.
-    const names = data.items.map((i) => i.name.trim().toLowerCase());
-    const products = await this.PurchaseRepository.getProductsByNames(names);
-    const productByName = new Map(products.map((p) => [p.name, p]));
+    // Registro fiel da compra: nomes normalizados, unidade/qtd/preço como
+    // digitados.
+    const items = data.items.map((i) => ({
+      name: i.name.trim().toLowerCase(),
+      unit_measurement: i.unit_measurement,
+      quantity: i.quantity,
+      unit_price: i.unit_price,
+    }));
 
-    const lines = data.items.map((req) => {
-      const name = req.name.trim().toLowerCase();
-      const product = productByName.get(name) ?? null;
+    const total = items.reduce((acc, l) => acc + l.unit_price * l.quantity, 0);
+    const hash = await this.createHash(data, items);
 
-      // Convert to the product's stored unit only when topping up an existing
-      // product in a different unit.
-      const stockQuantity =
-        product && req.unit_measurement !== product.unit_measurement
-          ? UnitConverter.convert(
-              req.quantity,
-              req.unit_measurement,
-              product.unit_measurement as any,
-            )
-          : req.quantity;
+    const names = items.map((i) => i.name);
+    const existing = await this.PurchaseRepository.getProductsByNames(names);
+    const existingByName = new Map(existing.map((p) => [p.name, p]));
 
-      return {
-        name,
-        unit_measurement: req.unit_measurement,
-        quantity: req.quantity,
-        unit_price: req.unit_price,
-        id_product: product?.id_product ?? null,
-        currentQuantity: product?.current_quantity ?? null,
-        stockQuantity,
-      };
-    });
-
-    const total = lines.reduce(
-      (acc, l) => acc + l.unit_price * l.quantity,
-      0,
-    );
-
-    const hash = await this.createHash(data, lines);
-
-    const purchase = await this.PurchaseRepository.createPurchase({
-      date: dataCompra,
-      total_price: total,
-      hash,
-      supplier: { connect: { id_supplier: idSupplier } },
-    });
-
-    await this.PurchaseRepository.createManyPurchaseItems(
-      lines.map((l) => ({
-        id_purchase: purchase.id_purchase,
-        id_product: l.id_product,
-        name: l.name,
-        unit_measurement: l.unit_measurement,
-        quantity: l.quantity,
-        unit_price: l.unit_price,
-      })),
-    );
-
-    // Only matched products link to a supplier and have their stock topped up.
-    const matched = lines.filter((l) => l.id_product);
-    if (matched.length) {
-      await this.PurchaseRepository.createManyProductSupplier(
-        matched.map((l) => ({
-          id_supplier: idSupplier,
-          id_product: l.id_product as string,
-        })),
+    // Agrega por nome convertendo para a unidade base do produto. O custo é
+    // somado em dinheiro (agnóstico de unidade) e dividido pela qtd em base.
+    const groups = new Map<
+      string,
+      { base: string; qtyBase: number; cost: number }
+    >();
+    for (const it of items) {
+      const ex = existingByName.get(it.name);
+      const base = ex ? ex.unit_measurement : it.unit_measurement;
+      const qtyBase = UnitConverter.safeConvert(
+        it.quantity,
+        it.unit_measurement,
+        base,
       );
-
-      // Aggregate increments per product so two lines of the same item in one
-      // purchase don't overwrite each other.
-      const incrementByProduct = new Map<string, number>();
-      for (const l of matched) {
-        const id = l.id_product as string;
-        incrementByProduct.set(
-          id,
-          (incrementByProduct.get(id) ?? 0) + l.stockQuantity,
-        );
+      const lineCost = it.unit_price * it.quantity;
+      const g = groups.get(it.name);
+      if (g) {
+        g.qtyBase += qtyBase;
+        g.cost += lineCost;
+      } else {
+        groups.set(it.name, { base, qtyBase, cost: lineCost });
       }
-      const baseQuantity = new Map(
-        matched.map((l) => [l.id_product as string, l.currentQuantity ?? 0]),
-      );
-
-      await this.PurchaseRepository.updateQuantityProduct(
-        [...incrementByProduct].map(([id_product, increment]) => ({
-          id_product,
-          quantity: (baseQuantity.get(id_product) ?? 0) + increment,
-        })),
-      );
     }
 
+    const newProducts: NewProductInput[] = [];
+    const topUps: TopUpInput[] = [];
+    const existingIdByName: Record<string, string> = {};
+
+    for (const [name, g] of groups) {
+      const incomingCost = g.qtyBase > 0 ? g.cost / g.qtyBase : 0;
+      const ex = existingByName.get(name);
+      if (ex) {
+        existingIdByName[name] = ex.id_product;
+        topUps.push({
+          id_product: ex.id_product,
+          quantity: ex.current_quantity + g.qtyBase,
+          unit_price: weightedAverageCost(
+            ex.current_quantity,
+            ex.unit_price,
+            g.qtyBase,
+            incomingCost,
+          ),
+          addQuantity: g.qtyBase,
+        });
+      } else {
+        newProducts.push({
+          name,
+          unit_measurement: g.base,
+          quantity: g.qtyBase,
+          unit_price: incomingCost,
+        });
+      }
+    }
+
+    await this.PurchaseRepository.commitPurchase({
+      idSupplier,
+      date,
+      total,
+      hash,
+      newProducts,
+      topUps,
+      items,
+      existingIdByName,
+    });
+
     return {
-      dataCompra,
-      items: lines.map((l) => ({
+      dataCompra: date,
+      items: items.map((l) => ({
         name: l.name,
         quantity: l.quantity,
         unitPrice: l.unit_price,

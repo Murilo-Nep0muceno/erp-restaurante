@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useNotif } from '../../store/notifContext';
 import { deleteDish, getDishes } from '../../services/dish.service';
@@ -9,6 +10,7 @@ import { addCategory, allCategories } from '../../lib/categories';
 import { formatBRL } from '../../lib/format';
 import type { RecipeDish } from '../../types';
 import AsyncState from '../../components/AsyncState';
+import Modal from '../../components/Modal';
 import DishModal from './DishModal';
 import { IconClipboard, IconEdit, IconPlus, IconTrash } from '../../components/icons';
 import styles from './DishesSection.module.css';
@@ -21,6 +23,8 @@ export default function DishesSection() {
   const [, bumpCat] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<RecipeDish | null>(null);
+  const [catModalOpen, setCatModalOpen] = useState(false);
+  const [newCat, setNewCat] = useState('');
 
   const dishes = dishesQ.data ?? [];
   const products = productsQ.data ?? [];
@@ -36,12 +40,17 @@ export default function DishesSection() {
     setModalOpen(true);
   }
   function handleNewCategory() {
-    const name = window.prompt('Nome da nova categoria:');
-    if (name && name.trim()) {
-      addCategory(name);
-      bumpCat((v) => v + 1);
-      notify('Categoria adicionada.');
-    }
+    setNewCat('');
+    setCatModalOpen(true);
+  }
+  function confirmNewCategory(e: FormEvent) {
+    e.preventDefault();
+    const name = newCat.trim();
+    if (!name) return;
+    addCategory(name);
+    bumpCat((v) => v + 1);
+    notify('Categoria adicionada.');
+    setCatModalOpen(false);
   }
   async function handleDelete(d: RecipeDish) {
     if (!window.confirm(`Excluir o prato "${d.name_dish}"?`)) return;
@@ -155,6 +164,49 @@ export default function DishesSection() {
           onClose={() => setModalOpen(false)}
           onSaved={handleSaved}
         />
+      )}
+
+      {catModalOpen && (
+        <Modal
+          open
+          title="Nova categoria"
+          onClose={() => setCatModalOpen(false)}
+          footer={
+            <>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setCatModalOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                form="new-cat-form"
+                className="btn btn-primary"
+                disabled={!newCat.trim()}
+              >
+                Adicionar
+              </button>
+            </>
+          }
+        >
+          <form id="new-cat-form" onSubmit={confirmNewCategory}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="new-cat-input">
+                Nome da categoria
+              </label>
+              <input
+                id="new-cat-input"
+                className="form-input"
+                placeholder="Ex.: Sobremesas"
+                value={newCat}
+                onChange={(e) => setNewCat(e.target.value)}
+                autoFocus
+              />
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );

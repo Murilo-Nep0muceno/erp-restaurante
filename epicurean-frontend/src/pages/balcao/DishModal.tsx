@@ -64,7 +64,9 @@ export default function DishModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const hasStock = products.length > 0;
+  // INSUMO (descartáveis, limpeza, embalagem) não entra em ficha técnica.
+  const pickable = products.filter((p) => (p.type ?? 'INGREDIENTE') !== 'INSUMO');
+  const hasStock = pickable.length > 0;
   const typingNew = !hasStock || ingSelect === '__new__';
   const selectedStock =
     hasStock && ingSelect && ingSelect !== '__new__'
@@ -149,14 +151,14 @@ export default function DishModal({
         const items = [...ficha];
         const novos = items.filter((i) => !i.id_product);
 
-        // Ingredients now originate from purchases — they can't be invented
-        // here. Block and point the user to the Compras flow.
+        // Ingredientes precisam existir no estoque. Bloqueia e aponta o usuário
+        // ao Estoque (cadastro direto) ou Compras.
         if (novos.length > 0) {
           setSaving(false);
           setError(
             'Estes ingredientes ainda não estão no estoque: ' +
               novos.map((n) => n.name).join(', ') +
-              '. Registre-os via Compras antes de usá-los na ficha.',
+              '. Cadastre-os no Estoque (“Novo item”) ou via Compras antes de usá-los na ficha.',
           );
           return;
         }
@@ -307,7 +309,7 @@ export default function DishModal({
                           onChange={(e) => selectIngredient(e.target.value)}
                         >
                           <option value="">Escolha do estoque…</option>
-                          {products.map((p) => (
+                          {pickable.map((p) => (
                             <option key={p.id_product} value={p.name}>
                               {p.name} ({p.unit_measurement})
                             </option>
